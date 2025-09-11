@@ -86,7 +86,7 @@ const B2BMarketplace = () => {
       if (minPrice) params.append('minPrice', minPrice);
       if (maxPrice) params.append('maxPrice', maxPrice);
 
-      const response = await fetch(`http://localhost:4000/buyer/products?${params}`);
+      const response = await fetch(`https://zauvijek-industry-mart.onrender.com/buyer/products?${params}`);
       const data = await response.json();
       setProducts(data.products || []);
     } catch (error) {
@@ -98,7 +98,7 @@ const B2BMarketplace = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:4000/buyer/categories');
+      const response = await fetch('https://zauvijek-industry-mart.onrender.com/buyer/categories');
       const data = await response.json();
       setCategories(data.categories || []);
     } catch (error) {
@@ -108,7 +108,7 @@ const B2BMarketplace = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:4000/buyer/orders', {
+      const response = await fetch('https://zauvijek-industry-mart.onrender.com/buyer/orders', {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
@@ -192,7 +192,7 @@ const B2BMarketplace = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/buyer/orders', {
+      const response = await fetch('https://zauvijek-industry-mart.onrender.com/buyer/orders', {
         method: 'POST',
         headers: {
           'Authorization': token,

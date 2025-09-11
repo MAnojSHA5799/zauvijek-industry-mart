@@ -74,7 +74,7 @@ const AdminDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch("http://localhost:4000/admin/dashboard", {
+      const response = await fetch("https://zauvijek-industry-mart.onrender.com/admin/dashboard", {
         headers: {
           Authorization: token,
           "Content-Type": "application/json",
@@ -97,7 +97,7 @@ const AdminDashboard = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch("http://localhost:4000/admin/users", {
+      const response = await fetch("https://zauvijek-industry-mart.onrender.com/admin/users", {
         headers: {
           Authorization: token,
           "Content-Type": "application/json",
@@ -116,7 +116,7 @@ const AdminDashboard = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:4000/admin/products", {
+      const response = await fetch("https://zauvijek-industry-mart.onrender.com/admin/products", {
         headers: {
           Authorization: token,
           "Content-Type": "application/json",
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch("http://localhost:4000/admin/orders", {
+      const response = await fetch("https://zauvijek-industry-mart.onrender.com/admin/orders", {
         headers: {
           Authorization: token,
           "Content-Type": "application/json",
@@ -151,7 +151,7 @@ const AdminDashboard = () => {
   const handleUserStatusUpdate = async (userId, status) => {
     try {
       const response = await fetch(
-        `http://localhost:4000/admin/users/${userId}/status`,
+        `https://zauvijek-industry-mart.onrender.com/admin/users/${userId}/status`,
         {
           method: "PUT",
           headers: {
@@ -186,7 +186,7 @@ const AdminDashboard = () => {
   const handleProductStatusUpdate = async (productId, status) => {
     try {
       const response = await fetch(
-        `http://localhost:4000/admin/products/${productId}/status`,
+        `https://zauvijek-industry-mart.onrender.com/admin/products/${productId}/status`,
         {
           method: "PUT",
           headers: {
@@ -222,7 +222,7 @@ const AdminDashboard = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         const response = await fetch(
-          `http://localhost:4000/admin/users/${userId}`,
+          `https://zauvijek-industry-mart.onrender.com/admin/users/${userId}`,
           {
             method: "DELETE",
             headers: {
@@ -258,7 +258,7 @@ const AdminDashboard = () => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         const response = await fetch(
-          `http://localhost:4000/admin/products/${productId}`,
+          `https://zauvijek-industry-mart.onrender.com/admin/products/${productId}`,
           {
             method: "DELETE",
             headers: {

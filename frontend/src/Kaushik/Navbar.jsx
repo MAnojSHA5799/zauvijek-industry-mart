@@ -117,7 +117,7 @@ const Navbar = () => {
               display={{ base: "none", md: "flex" }}
             >
                 <Link to={'/shopping'} >
-              <Box align="center">
+              {/* <Box align="center">
                 <AiOutlineTag
                   fontSize="20px"
                   color="#dbdbdb"
@@ -126,17 +126,17 @@ const Navbar = () => {
                 <Text cursor="pointer" fontSize="12px" color="white">
                   Shopping
                 </Text>
-              </Box>
+              </Box> */}
               </Link>
               <Link to={"/laptop"} >
-              <Box align="center">
+              {/* <Box align="center">
                 <BsShop fontSize="20px" color="#dbdbdb" cursor="pointer" />
                 <Text cursor="pointer" fontSize="12px" color="white">
                   Product
                 </Text>
-              </Box>
+              </Box> */}
               </Link>
-              <Box align="center">
+              {/* <Box align="center">
                 <BsQuestionCircle
                   fontSize="20px"
                   color="#dbdbdb"
@@ -145,8 +145,8 @@ const Navbar = () => {
                 <Text cursor="pointer" fontSize="12px" color="white">
                   Shopping
                 </Text>
-              </Box>
-              <Box align="center">
+              </Box> */}
+              {/* <Box align="center">
                 <MdOutlineMessage
                   fontSize="20px"
                   color="#dbdbdb"
@@ -155,7 +155,7 @@ const Navbar = () => {
                 <Text cursor="pointer" fontSize="12px" color="white">
                   Message
                 </Text>
-              </Box>
+              </Box> */}
               <Link to={'/login'}>
               <Box align="center">
                     <BiUserCircle
@@ -227,20 +227,20 @@ const Navbar = () => {
               {/* <Text cursor="pointer" fontSize="12px" color="white">
                 Sign In
               </Text> */}
-              <Text cursor="pointer" fontSize="12px" color="white">
+              {/* <Text cursor="pointer" fontSize="12px" color="white">
                 Message
-              </Text>
-              <Text cursor="pointer" fontSize="12px" color="white">
+              </Text> */}
+              {/* <Text cursor="pointer" fontSize="12px" color="white">
                 Shopping
-              </Text>
-              <Text cursor="pointer" fontSize="12px" color="white">
+              </Text> */}
+              {/* <Text cursor="pointer" fontSize="12px" color="white">
                 Help
-              </Text>
-              <Link to={"./laptop"} >
+              </Text> */}
+              {/* <Link to={"./laptop"} >
               <Text cursor="pointer" fontSize="12px" color="white">
                 Product
               </Text>
-              </Link>
+              </Link> */}
               <Link to={"/login"} >
               <Text cursor="pointer" fontSize="12px" color="white">
                 Login

@@ -41,7 +41,7 @@ role:"buyer"
 
 const signup=async (data)=>{
   try {
-    const res = await fetch("http://localhost:4000/user/register", {
+    const res = await fetch("https://zauvijek-industry-mart.onrender.com/user/register", {
       method: "POST",
       headers: {
         "Content-type": "application/json"

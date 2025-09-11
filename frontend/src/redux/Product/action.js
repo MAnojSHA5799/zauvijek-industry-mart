@@ -35,7 +35,7 @@ export const getProductData=()=>async (dispatch)=>{
    
     dispatch(ProductgetRequestAction)
   try {
-        const res = await fetch("http://localhost:4000/product/", {
+        const res = await fetch("https://zauvijek-industry-mart.onrender.com/product/", {
             method: "GET",
             headers: {
                 "Content-type": "application/json"
@@ -55,7 +55,7 @@ export const deleteItemFromProduct=(id)=>async(dispatch)=>{
 
     try{
        
-        const res = await fetch(`http://localhost:4000/product/delete/${id}`,{
+        const res = await fetch(`https://zauvijek-industry-mart.onrender.com/product/delete/${id}`,{
             method: "DELETE",
             headers: {
                 "Content-type": "application/json"
@@ -77,7 +77,7 @@ export const addToProduct=(payload)=>async(dispatch)=>{
 
     try{
       
-        const res = await fetch(`http://localhost:4000/product/cart`,{
+        const res = await fetch(`https://zauvijek-industry-mart.onrender.com/product/cart`,{
             method: "POST",
             headers: {
             
@@ -98,7 +98,7 @@ export const updateProduct=(payload,id)=>async(dispatch)=>{
 
     try{
         
-        const res = await fetch(`http://localhost:4000/product/update/${id}`,{
+        const res = await fetch(`https://zauvijek-industry-mart.onrender.com/product/update/${id}`,{
             method: "PATCH",
             headers: {
                 "Content-type": "application/json",
