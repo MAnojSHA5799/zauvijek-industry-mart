@@ -66,7 +66,7 @@ const Home = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:4000/buyer/products");
+      const response = await fetch("https://zauvijek-industry-mart.onrender.com/buyer/products");
       const data = await response.json();
       setProducts(data.products || []);
     } catch (error) {
@@ -220,7 +220,7 @@ const Home = () => {
                     height={{ base: "140px", sm: "180px", md: "250px" }}
                     objectFit="cover"
                     borderRadius="md"
-                    src={`http://localhost:4000${el.images?.[0]}`}
+                    src={`https://zauvijek-industry-mart.onrender.com${el.images?.[0]}`}
                     alt={el.name}
                   />
                 </Box>

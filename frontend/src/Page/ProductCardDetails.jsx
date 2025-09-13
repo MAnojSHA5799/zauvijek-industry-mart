@@ -25,7 +25,7 @@ const ProductCardDetails = () => {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`http://localhost:4000/buyer/products/${id}`);
+      const response = await fetch(`https://zauvijek-industry-mart.onrender.com/buyer/products/${id}`);
       const data = await response.json();
       setProduct(data.product); // assuming API returns { product: {...} }
     } catch (error) {
@@ -81,7 +81,7 @@ const ProductCardDetails = () => {
             {product.images?.map((img, i) => (
               <Image
                 key={i}
-                src={`http://localhost:4000${img}`}
+                src={`https://zauvijek-industry-mart.onrender.com${img}`}
                 alt={product.name}
                 borderRadius="md"
                 mb={4}
