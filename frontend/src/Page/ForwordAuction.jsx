@@ -89,7 +89,7 @@ function ForwordAuction() {
       objectFit: "cover",
     }}
   >
-    <source src="https://videocdn.cdnpk.net/videos/5d831079-eb9a-449b-a8ad-b0829a80ddc5/horizontal/previews/clear/large.mp4?token=exp=1757792177~hmac=b4215d28cfd8232c783ddaea6787ae94b8b2105e8aaec50a214d2a3e149a0e3f" type="video/mp4" />
+    <source src="/ban2.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
 

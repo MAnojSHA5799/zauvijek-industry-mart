@@ -89,7 +89,7 @@ function BackwordAuction() {
       objectFit: "cover",
     }}
   >
-    <source src="https://videocdn.cdnpk.net/videos/28bc96f9-a4a7-4bef-8f49-2de93fc3395b/horizontal/previews/clear/large.mp4?token=exp=1757792059~hmac=f9aeca77f30edd9cb874dd017ae55e30c8a6c34ce055d5a09caed0258f34cb54" type="video/mp4" />
+    <source src="/ban3.mp4" type="video/mp4" />
     Your browser does not support the video tag.
   </video>
 
