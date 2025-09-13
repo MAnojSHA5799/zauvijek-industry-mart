@@ -27,7 +27,7 @@ const Footer = () => {
         {/* Brand Section */}
         <Box display="flex" alignItems="center" justifyContent="center" mb={6}>
           <Text fontSize={{ base: "lg", md: "2xl" }} fontWeight="bold" color={brandColor}>
-            Zauvijek Industries Mart
+            Zauvijek MetalX Mart
           </Text>
         </Box>
 
@@ -41,11 +41,11 @@ const Footer = () => {
             <Text fontWeight="600" fontSize="lg" mb={2} color={brandColor}>
               Company
             </Text>
-            <Link href="#">About Us</Link>
-            <Link href="#">Press</Link>
-            <Link href="#">Partners</Link>
-            <Link href="#">Careers</Link>
-            <Link href="#">Contact Us</Link>
+            <Link href="/about-us">About Us</Link>
+            <Link href="/services">Services</Link>
+            {/* <Link href="#">Partners</Link> */}
+            <Link href="/career">Careers</Link>
+            <Link href="/contact-us">Contact Us</Link>
           </Stack>
 
           <Stack>
@@ -61,7 +61,7 @@ const Footer = () => {
             </Stack>
             <Link href="#">Tutorials</Link>
             <Link href="#">Pricing</Link>
-            <Link href="#">Releases</Link>
+            {/* <Link href="#">Releases</Link> */}
           </Stack>
 
           <Stack>
@@ -72,7 +72,7 @@ const Footer = () => {
             <Link href="#">Privacy Policy</Link>
             <Link href="#">Terms of Service</Link>
             <Link href="#">Law Enforcement</Link>
-            <Link href="#">Status</Link>
+            {/* <Link href="#">Status</Link> */}
           </Stack>
 
           <Stack>
@@ -84,7 +84,7 @@ const Footer = () => {
               spacing={3}
               justify={{ base: "center", md: "flex-start" }}
             >
-              <IconButton
+              {/* <IconButton
                 as="a"
                 href="#"
                 aria-label="Twitter"
@@ -92,7 +92,7 @@ const Footer = () => {
                 bg={brandColor}
                 color="white"
                 _hover={{ bg: "#4e58a3" }}
-              />
+              /> */}
               <IconButton
                 as="a"
                 href="#"
@@ -137,7 +137,7 @@ const Footer = () => {
       {/* Bottom Text */}
       <Box borderTop="1px solid" borderColor={`${brandColor}40`} py={4}>
         <Text textAlign="center" fontSize="sm" color="gray.600">
-          © 2025 Zauvijek Industries Mart. All rights reserved.
+          © 2025 Zauvijek MetalX Mart. All rights reserved.
         </Text>
       </Box>
     </Box>

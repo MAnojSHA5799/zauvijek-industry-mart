@@ -9,6 +9,8 @@ const sellerRouter=require("./routes/seller.routes")
 const adminRouter=require("./routes/admin.routes")
 const buyerRouter=require("./routes/buyer.routes")
 const { authorization }=require("./middleware/auth.middleware")
+const bannerRoutes = require("./routes/bannerRoutes.js");
+const path = require("path");
 require("dotenv").config()
 const app=express()
 app.use(cors())
@@ -21,6 +23,8 @@ app.get("/",(req,res)=>{
 // Public routes
 app.use("/user",userRouter)
 app.use("/buyer",buyerRouter)
+app.use("/uploads", express.static(path.join(path.resolve(), "uploads")));
+app.use("/api/banner", bannerRoutes);
 
 // Protected routes
 app.use("/seller",authorization,sellerRouter)

@@ -17,7 +17,7 @@ import { Link } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import NavMenu from "./Menu";
-
+import BannerDisplay from "./BannerDisplay";
 const Home = () => {
   let [Carousel, setCarousel] = useState(false);
   useEffect(() => {
@@ -476,30 +476,11 @@ const Home = () => {
           </Box>
         </Box>
         {/* -------------------------------MegaMenu--------------------------------------- */}
-        <Box backgroundColor="gray">
+        {/* <Box backgroundColor="gray">
           <NavMenu />
-        </Box>
-        <hr />
-        
-        {/* --------------------------------B2B Marketplace Section---------------------------------- */}
-        <Box p={8} bg="white" mb={4}>
-          <Heading textAlign="center" mb={6} color="blue.600">
-            B2B Marketplace
-          </Heading>
-          <Text textAlign="center" mb={6} fontSize="lg" color="gray.600">
-            Connect with verified sellers and buyers for wholesale business
-          </Text>
-          <Flex justify="center" gap={4} flexWrap="wrap">
-            <Button as={Link} to="/marketplace" colorScheme="blue" size="lg">
-              Browse Products
-            </Button>
-            <Button as={Link} to="/signup" colorScheme="green" size="lg" variant="outline">
-              Become a Seller
-            </Button>
-          </Flex>
-        </Box>
-        {/* -------------------------------Carousel------------------------------------------ */}
-        <Box backgroundColor="white">
+        </Box> */}
+         {/* -------------------------------Carousel------------------------------------------ */}
+         {/* <Box backgroundColor="white">
           <Flex>
             <Box
               w={{ base: "0%", md: "35%" }}
@@ -635,7 +616,28 @@ const Home = () => {
               </Box>
             </Box>
           </Flex>
+        </Box> */}
+{/* <BannerDisplay /> */}
+        <hr />
+        
+        {/* --------------------------------B2B Marketplace Section---------------------------------- */}
+        <Box p={8} bg="white" mb={4}>
+          <Heading textAlign="center" mb={6} color="blue.600">
+            B2B Marketplace
+          </Heading>
+          <Text textAlign="center" mb={6} fontSize="lg" color="gray.600">
+            Connect with verified sellers and buyers for wholesale business
+          </Text>
+          <Flex justify="center" gap={4} flexWrap="wrap">
+            <Button as={Link} to="/marketplace" colorScheme="blue" size="lg">
+              Browse Products
+            </Button>
+            <Button as={Link} to="/signup" colorScheme="green" size="lg" variant="outline">
+              Become a Seller
+            </Button>
+          </Flex>
         </Box>
+       
         {/* ------------------------------Construction------------------------------------ */}
         <Box
           borderTop="3px solid purple"
@@ -1213,7 +1215,7 @@ const Home = () => {
           </Flex>
         </Box>
         {/* -------------------------------Medicine------------------------------------- */}
-        <Box
+        {/* <Box
           borderTop="3px solid purple"
           backgroundColor="white"
           marginTop="20px"
@@ -1309,7 +1311,7 @@ const Home = () => {
               ))}
             </SimpleGrid>
           </Flex>
-        </Box>
+        </Box> */}
         {/* --------------------------------Brands------------------------------------- */}
         <Box
           borderTop="3px solid purple"

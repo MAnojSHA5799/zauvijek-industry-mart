@@ -28,7 +28,7 @@ import Footer from '../Kaushik/Footer';
 const login=async(data)=>{
 
   try {
-    const res = await fetch("https://zauvijek-industry-mart.onrender.com/user/login", {
+    const res = await fetch("http://localhost:4000/user/login", {
       method: "POST",
       headers: {
         "Content-type": "application/json"
@@ -138,7 +138,7 @@ export default function Login() {
             LOG IN
           </Heading>
           <Text fontSize={'sm'} color={'white'}>
-            Welcome to  Zauvijek Industries Mart ✌️
+            Welcome to  Zauvijek MetalX Mart ✌️
           </Text>
         </Stack>
         <Box

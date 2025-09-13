@@ -102,7 +102,7 @@ const Navbar = () => {
         fontWeight="bold" 
         color="white"
       >
-        Zauvijek Industries Mart
+        Zauvijek MetalX Mart
       </Text>
     </Link>
   </Box>

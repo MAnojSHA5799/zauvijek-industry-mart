@@ -17,6 +17,12 @@ import Details from '../Kaushik/Details'
 import B2BMarketplace from './B2BMarketplace'
 import SellerDashboard from './SellerDashboard'
 import AdminDashboard from './AdminDashboard'
+import Services from '../../src/Kaushik/services'
+import AboutUs from '../../src/Kaushik/about-us'
+import ContactUs from '../../src/Kaushik/contact-us'
+import Careers from '../../src/Kaushik/career'
+import BannerForm from '../Kaushik/BannerForm'
+import BannerDisplay from '../Kaushik/BannerDisplay'
 
 
  
@@ -29,6 +35,12 @@ const AllRoute = () => {
 
   <Route path="/signup" element={<SignupCard/>}/>
   <Route path="/login" element={<Login/>}/>
+  <Route path="/services" element={<Services/>}/>
+  <Route path="/about-us" element={<AboutUs/>}/>
+  <Route path="/contact-us" element={<ContactUs/>}/>
+  <Route path="/career" element={<Careers/>}/>
+  <Route path="/banner-form" element={<BannerForm/>}/>
+  <Route path="/banner-display" element={<BannerDisplay/>}/>
   
   {/* B2B Marketplace Routes */}
   <Route path="/marketplace" element={<B2BMarketplace/>}/>

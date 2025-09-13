@@ -46,7 +46,7 @@ const dispatch=useDispatch()
 
   useEffect(() => {
     axios
-      .get(`https://zauvijek-industry-mart.onrender.com/product/singleproduct/${id}`)
+      .get(`http://localhost:4000/product/singleproduct/${id}`)
       .then((res) =>{
         console.log(res.data.product)
         setProduct(res.data.product)

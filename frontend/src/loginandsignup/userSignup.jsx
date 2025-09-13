@@ -41,7 +41,7 @@ role:"buyer"
 
 const signup=async (data)=>{
   try {
-    const res = await fetch("https://zauvijek-industry-mart.onrender.com/user/register", {
+    const res = await fetch("http://localhost:4000/user/register", {
       method: "POST",
       headers: {
         "Content-type": "application/json"
@@ -117,7 +117,7 @@ export default function SignupCard() {
             SIGN UP
           </Heading>
           <Text fontSize={'sm'} color={'white'}>
-            Welcome to  Zauvijek Industries Mart ✌️
+            Welcome to  Zauvijek MetalX Mart ✌️
           </Text>
         </Stack>
         <Box
