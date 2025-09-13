@@ -116,46 +116,50 @@ const Navbar = () => {
               w="100%"
               display={{ base: "none", md: "flex" }}
             >
-                <Link to={'/shopping'} >
-              {/* <Box align="center">
+                <Link to={'/'} >
+              <Box align="center">
                 <AiOutlineTag
                   fontSize="20px"
                   color="#dbdbdb"
                   cursor="pointer"
                 />
                 <Text cursor="pointer" fontSize="12px" color="white">
-                  Shopping
+                  Home
                 </Text>
-              </Box> */}
+              </Box>
               </Link>
-              <Link to={"/laptop"} >
-              {/* <Box align="center">
+              <Link to={"/about-us"} >
+              <Box align="center">
                 <BsShop fontSize="20px" color="#dbdbdb" cursor="pointer" />
                 <Text cursor="pointer" fontSize="12px" color="white">
-                  Product
+                  About Us
                 </Text>
-              </Box> */}
+              </Box>
               </Link>
-              {/* <Box align="center">
+              <Link to={"/services"} >
+              <Box align="center">
                 <BsQuestionCircle
                   fontSize="20px"
                   color="#dbdbdb"
                   cursor="pointer"
                 />
                 <Text cursor="pointer" fontSize="12px" color="white">
-                  Shopping
+                  Services
                 </Text>
-              </Box> */}
-              {/* <Box align="center">
+              </Box>
+              </Link>
+              <Link to={"/contact-us"} >
+              <Box align="center">
                 <MdOutlineMessage
                   fontSize="20px"
                   color="#dbdbdb"
                   cursor="pointer"
                 />
                 <Text cursor="pointer" fontSize="12px" color="white">
-                  Message
+                  Contact Us
                 </Text>
-              </Box> */}
+              </Box>
+              </Link>
               <Link to={'/login'}>
               <Box align="center">
                     <BiUserCircle
