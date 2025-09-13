@@ -38,27 +38,30 @@ const Home = () => {
   const settings = {
     dots: false,
     infinite: true,
-    autoplay: true,
-    autoplaySpeed: 2000, // 2 sec
-    speed: 2000, // smooth animation
-    slidesToShow: 5, // 5 logos at a time
+    speed: 500,
+    slidesToShow: 4,      // Desktop
     slidesToScroll: 1,
-    cssEase: "linear",
+    autoplay: true,        // ✅ auto move enabled
+    autoplaySpeed: 2000,   // 2 seconds per slide
     responsive: [
       {
-        breakpoint: 1024,
-        settings: { slidesToShow: 4 },
-      },
-      {
-        breakpoint: 768,
-        settings: { slidesToShow: 3 },
+        breakpoint: 768,   // Mobile / Tablet
+        settings: {
+          slidesToShow: 2, // 2 logos per slide
+          slidesToScroll: 1,
+        },
       },
       {
         breakpoint: 480,
-        settings: { slidesToShow: 2 },
+        settings: {
+          slidesToShow: 1, // 1 logo very small screens
+          slidesToScroll: 1,
+        },
       },
     ],
   };
+  
+  
 
   useEffect(() => {
     fetchProducts();
@@ -103,15 +106,7 @@ const Home = () => {
       <Navbar />
 
       {/* Banner */}
-      <Box mt={10}>
-        <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          <BannerDisplay />
-        </motion.div>
-      </Box>
+      
 
       <Box mt={10}>
         <motion.div
@@ -120,6 +115,15 @@ const Home = () => {
           transition={{ duration: 0.8 }}
         >
           <BannerDisplayTwo />
+        </motion.div>
+      </Box>
+      <Box mt={-10}>
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <BannerDisplay />
         </motion.div>
       </Box>
       {/* B2B Marketplace Section */}
@@ -285,28 +289,30 @@ const Home = () => {
   )}
 </Box>
 
-       {/* --------------------------------Brands------------------------------------- */}
-       <Box borderTop="3px solid purple" backgroundColor="white" mt="20px" w="100%">
-      <Heading
-        align="left"
-        p="5px 10px"
-        fontSize={{ base: "18px", sm: "22px", md: "30px" }}
-        fontFamily="Arial"
-        color="#333"
-      >
-        Explore products from Premium Brands
-      </Heading>
+      {/* --------------------------------Brands------------------------------------- */}
+<Box borderTop="3px solid purple" backgroundColor="white" mt="20px" w="100%">
+  <Heading
+    align="left"
+    p="5px 10px"
+    fontSize={{ base: "18px", sm: "22px", md: "30px" }}
+    fontFamily="Arial"
+    color="#333"
+  >
+    Explore products from Premium Brands
+  </Heading>
 
-      <Box mt={4} px={4}>
-        <Slider {...settings}>
-          {logos.map((src, i) => (
-            <Box key={i} display="flex" justifyContent="center" alignItems="center" p="10px">
-              <Image src={src} maxH="60px" objectFit="contain" />
-            </Box>
-          ))}
-        </Slider>
+  <Box mt={4} px={4}>
+  <Slider {...settings}>
+    {logos.map((src, i) => (
+      <Box key={i} display="flex" justifyContent="center" alignItems="center" p="10px">
+        <Image src={src} maxH="60px" objectFit="contain" />
       </Box>
-    </Box>
+    ))}
+  </Slider>
+</Box>
+
+</Box>
+
 
 
 

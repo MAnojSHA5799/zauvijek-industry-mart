@@ -24,7 +24,8 @@ import Careers from '../../src/Kaushik/career'
 import BannerForm from '../Kaushik/BannerForm'
 import BannerDisplay from '../Kaushik/BannerDisplay'
 import ProductCardDetails from './ProductCardDetails'
-
+import ForwordAuction from './ForwordAuction'
+import BackworddAuction from './BackwordAuction'
 
  
 const AllRoute = () => {
@@ -46,6 +47,10 @@ const AllRoute = () => {
   {/* B2B Marketplace Routes */}
   <Route path="/marketplace" element={<B2BMarketplace/>}/>
   <Route path="/seller/dashboard" element={<PrivateRoute><SellerDashboard/></PrivateRoute>}/>
+  <Route path="/forword-auction" element={<ForwordAuction />} />
+<Route path="/backword-auction" element={<BackworddAuction />} />
+
+
   <Route path="/admin/dashboard" element={<PrivateRoute><AdminDashboard/></PrivateRoute>}/>
   
   {/* Original Shopping Routes */}
