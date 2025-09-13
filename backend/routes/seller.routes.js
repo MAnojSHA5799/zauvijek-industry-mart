@@ -3,8 +3,20 @@ const { authorization, sellerOnly } = require("../middleware/auth.middleware");
 const ProductModel = require("../models/product.model");
 const OrderModel = require("../models/order.model");
 const { UserModel } = require("../models/User.model");
-
+const multer = require("multer");
 const router = express.Router();
+const path = require("path"); // ✅ add this line
+// 🖼 Multer setup
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, "uploads/products"); // folder bana lo project ke andar
+    },
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname));
+    },
+  });
+  
+  const upload = multer({ storage });
 
 // Get seller dashboard data
 router.get("/dashboard", authorization, sellerOnly, async (req, res) => {
@@ -44,30 +56,76 @@ router.get("/dashboard", authorization, sellerOnly, async (req, res) => {
 });
 
 // Add new product
-router.post("/products", authorization, sellerOnly, async (req, res) => {
-    try {
-        const { name, description, price, images, stock, category, brand, specifications, minOrderQuantity, maxOrderQuantity } = req.body;
+// router.post("/products", authorization, sellerOnly, async (req, res) => {
+//     try {
+//         const { name, description, price, images, stock, category, brand, specifications, minOrderQuantity, maxOrderQuantity } = req.body;
         
+//         const product = new ProductModel({
+//             name,
+//             description,
+//             price,
+//             images: images || [],
+//             stock,
+//             category,
+//             sellerId: req.userId,
+//             brand,
+//             specifications: specifications || {},
+//             minOrderQuantity: minOrderQuantity || 1,
+//             maxOrderQuantity: maxOrderQuantity || 1000
+//         });
+        
+//         await product.save();
+//         res.send({ message: "Product added successfully", product });
+//     } catch (error) {
+//         res.status(500).send({ message: "Error adding product", error: error.message });
+//     }
+// });
+
+// ➕ Add new product
+router.post(
+    "/products",
+    authorization,
+    sellerOnly,
+    upload.single("image"), // yahan "image" frontend se match karega
+    async (req, res) => {
+      try {
+        const {
+          name,
+          description,
+          price,
+          stock,
+          category,
+          brand,
+          specifications,
+          minOrderQuantity,
+          maxOrderQuantity,
+        } = req.body;
+  
+        // Agar file mila hai to path set karo
+        const imagePath = req.file ? `/uploads/products/${req.file.filename}` : null;
+  
         const product = new ProductModel({
-            name,
-            description,
-            price,
-            images: images || [],
-            stock,
-            category,
-            sellerId: req.userId,
-            brand,
-            specifications: specifications || {},
-            minOrderQuantity: minOrderQuantity || 1,
-            maxOrderQuantity: maxOrderQuantity || 1000
+          name,
+          description,
+          price,
+          images: imagePath ? [imagePath] : [],
+          stock,
+          category,
+          sellerId: req.userId,
+          brand,
+          specifications: specifications || {},
+          minOrderQuantity: minOrderQuantity || 1,
+          maxOrderQuantity: maxOrderQuantity || 1000,
         });
-        
+  
         await product.save();
         res.send({ message: "Product added successfully", product });
-    } catch (error) {
+      } catch (error) {
         res.status(500).send({ message: "Error adding product", error: error.message });
+      }
     }
-});
+  );
+  
 
 // Get seller's products
 router.get("/products", authorization, sellerOnly, async (req, res) => {

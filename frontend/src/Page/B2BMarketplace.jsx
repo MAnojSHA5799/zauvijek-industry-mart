@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
@@ -46,29 +46,33 @@ import {
   Th,
   Td,
   TableContainer,
-  Divider
-} from '@chakra-ui/react';
-import { SearchIcon, StarIcon, AddIcon } from '@chakra-ui/icons';
-import Navbar from '../Kaushik/Navbar';
-import Footer from '../Kaushik/Footer';
+  Divider,
+} from "@chakra-ui/react";
+import { SearchIcon, StarIcon, AddIcon } from "@chakra-ui/icons";
+import Navbar from "../Kaushik/Navbar";
+import Footer from "../Kaushik/Footer";
 
 const B2BMarketplace = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [cart, setCart] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isOrderOpen, onOpen: onOrderOpen, onClose: onOrderClose } = useDisclosure();
+  const {
+    isOpen: isOrderOpen,
+    onOpen: onOrderOpen,
+    onClose: onOrderClose,
+  } = useDisclosure();
   const toast = useToast();
 
-  const token = JSON.parse(localStorage.getItem('token'));
-  const userDetails = JSON.parse(localStorage.getItem('userDetails'));
+  const token = JSON.parse(localStorage.getItem("token"));
+  const userDetails = JSON.parse(localStorage.getItem("userDetails"));
 
   useEffect(() => {
     fetchProducts();
@@ -81,16 +85,19 @@ const B2BMarketplace = () => {
   const fetchProducts = async () => {
     try {
       const params = new URLSearchParams();
-      if (searchTerm) params.append('search', searchTerm);
-      if (selectedCategory) params.append('category', selectedCategory);
-      if (minPrice) params.append('minPrice', minPrice);
-      if (maxPrice) params.append('maxPrice', maxPrice);
+      if (searchTerm) params.append("search", searchTerm);
+      if (selectedCategory) params.append("category", selectedCategory);
+      if (minPrice) params.append("minPrice", minPrice);
+      if (maxPrice) params.append("maxPrice", maxPrice);
 
-      const response = await fetch(`http://localhost:4000/buyer/products?${params}`);
+      const response = await fetch(
+        `http://localhost:4000/buyer/products?${params}`
+      );
       const data = await response.json();
+      console.log("92", data.products);
       setProducts(data.products || []);
     } catch (error) {
-      console.error('Error fetching products:', error);
+      console.error("Error fetching products:", error);
     } finally {
       setLoading(false);
     }
@@ -98,26 +105,26 @@ const B2BMarketplace = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:4000/buyer/categories');
+      const response = await fetch("http://localhost:4000/buyer/categories");
       const data = await response.json();
       setCategories(data.categories || []);
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error("Error fetching categories:", error);
     }
   };
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:4000/buyer/orders', {
+      const response = await fetch("http://localhost:4000/buyer/orders", {
         headers: {
-          'Authorization': token,
-          'Content-Type': 'application/json'
-        }
+          Authorization: token,
+          "Content-Type": "application/json",
+        },
       });
       const data = await response.json();
       setOrders(data.orders || []);
     } catch (error) {
-      console.error('Error fetching orders:', error);
+      console.error("Error fetching orders:", error);
     }
   };
 
@@ -126,54 +133,59 @@ const B2BMarketplace = () => {
   };
 
   const addToCart = (product) => {
-    const existingItem = cart.find(item => item.productId === product._id);
+    const existingItem = cart.find((item) => item.productId === product._id);
     if (existingItem) {
-      setCart(cart.map(item => 
-        item.productId === product._id 
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      ));
+      setCart(
+        cart.map((item) =>
+          item.productId === product._id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      );
     } else {
-      setCart([...cart, {
-        productId: product._id,
-        name: product.name,
-        price: product.price,
-        quantity: 1,
-        sellerId: product.sellerId._id,
-        sellerName: product.sellerId.name
-      }]);
+      setCart([
+        ...cart,
+        {
+          productId: product._id,
+          name: product.name,
+          price: product.price,
+          quantity: 1,
+          sellerId: product.sellerId._id,
+          sellerName: product.sellerId.name,
+        },
+      ]);
     }
     toast({
-      title: 'Added to Cart',
+      title: "Added to Cart",
       description: `${product.name} has been added to your cart`,
-      status: 'success',
+      status: "success",
       duration: 2000,
       isClosable: true,
     });
   };
 
   const removeFromCart = (productId) => {
-    setCart(cart.filter(item => item.productId !== productId));
+    setCart(cart.filter((item) => item.productId !== productId));
   };
 
   const updateCartQuantity = (productId, quantity) => {
     if (quantity <= 0) {
       removeFromCart(productId);
     } else {
-      setCart(cart.map(item => 
-        item.productId === productId 
-          ? { ...item, quantity }
-          : item
-      ));
+      setCart(
+        cart.map((item) =>
+          item.productId === productId ? { ...item, quantity } : item
+        )
+      );
     }
   };
 
   const placeOrder = async () => {
     if (!token) {
       toast({
-        title: 'Login Required',
-        description: 'Please login to place an order',
-        status: 'warning',
+        title: "Login Required",
+        description: "Please login to place an order",
+        status: "warning",
         duration: 3000,
         isClosable: true,
       });
@@ -182,9 +194,9 @@ const B2BMarketplace = () => {
 
     if (cart.length === 0) {
       toast({
-        title: 'Empty Cart',
-        description: 'Please add products to your cart',
-        status: 'warning',
+        title: "Empty Cart",
+        description: "Please add products to your cart",
+        status: "warning",
         duration: 3000,
         isClosable: true,
       });
@@ -192,32 +204,32 @@ const B2BMarketplace = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:4000/buyer/orders', {
-        method: 'POST',
+      const response = await fetch("http://localhost:4000/buyer/orders", {
+        method: "POST",
         headers: {
-          'Authorization': token,
-          'Content-Type': 'application/json'
+          Authorization: token,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           products: cart,
           shippingAddress: {
             name: userDetails.name,
-            address: 'Default Address',
-            city: 'Default City',
-            state: 'Default State',
-            pincode: '123456',
-            phone: userDetails.phone
+            address: "Default Address",
+            city: "Default City",
+            state: "Default State",
+            pincode: "123456",
+            phone: userDetails.phone,
           },
-          paymentMethod: 'cod'
-        })
+          paymentMethod: "cod",
+        }),
       });
 
       const data = await response.json();
       if (response.ok) {
         toast({
-          title: 'Order Placed',
+          title: "Order Placed",
           description: `Your order has been placed successfully. ${data.totalOrders} order(s) created.`,
-          status: 'success',
+          status: "success",
           duration: 5000,
           isClosable: true,
         });
@@ -229,9 +241,9 @@ const B2BMarketplace = () => {
       }
     } catch (error) {
       toast({
-        title: 'Order Failed',
+        title: "Order Failed",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
@@ -240,23 +252,34 @@ const B2BMarketplace = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'pending': return 'yellow';
-      case 'confirmed': return 'blue';
-      case 'shipped': return 'purple';
-      case 'delivered': return 'green';
-      case 'cancelled': return 'red';
-      default: return 'gray';
+      case "pending":
+        return "yellow";
+      case "confirmed":
+        return "blue";
+      case "shipped":
+        return "purple";
+      case "delivered":
+        return "green";
+      case "cancelled":
+        return "red";
+      default:
+        return "gray";
     }
   };
 
-  const totalCartAmount = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const totalCartAmount = cart.reduce(
+    (total, item) => total + item.price * item.quantity,
+    0
+  );
 
   return (
     <>
       <Navbar />
       <Box p={8} mt={10} maxW="1200px" mx="auto">
-        <Heading mb={6} color="blue.600">B2B Marketplace</Heading>
-        
+        <Heading mb={6} color="blue.600">
+          B2B Marketplace
+        </Heading>
+
         <Tabs>
           <TabList>
             <Tab>Browse Products</Tab>
@@ -268,7 +291,11 @@ const B2BMarketplace = () => {
             <TabPanel>
               {/* Search and Filters */}
               <Box mb={6} p={4} bg="gray.50" borderRadius="md">
-                <Grid templateColumns="repeat(auto-fit, minmax(200px, 1fr))" gap={4} mb={4}>
+                <Grid
+                  templateColumns="repeat(auto-fit, minmax(200px, 1fr))"
+                  gap={4}
+                  mb={4}
+                >
                   <InputGroup>
                     <InputLeftElement pointerEvents="none">
                       <SearchIcon color="gray.300" />
@@ -284,8 +311,10 @@ const B2BMarketplace = () => {
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                   >
-                    {categories.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                    {categories.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
                     ))}
                   </Select>
                   <NumberInput
@@ -317,45 +346,83 @@ const B2BMarketplace = () => {
               </Box>
 
               {/* Products Grid */}
-              <Grid templateColumns="repeat(auto-fill, minmax(300px, 1fr))" gap={6}>
-                {products.map((product) => (
-                  <Card key={product._id} maxW="sm">
-                    <CardHeader>
-                      <Heading size="md">{product.name}</Heading>
-                      <Text color="gray.600">by {product.sellerId?.name}</Text>
-                    </CardHeader>
-                    <CardBody>
-                      <Text mb={2}>{product.description}</Text>
-                      <Text fontSize="2xl" fontWeight="bold" color="green.600">
-                        ₹{product.price}
-                      </Text>
-                      <Text fontSize="sm" color="gray.500">
-                        Stock: {product.stock} units
-                      </Text>
-                      <Text fontSize="sm" color="gray.500">
-                        Min Order: {product.minOrderQuantity} units
-                      </Text>
-                      <Badge colorScheme="blue" mt={2}>
-                        {product.category}
-                      </Badge>
-                    </CardBody>
-                    <CardFooter>
-                      <Button
-                        colorScheme="blue"
-                        size="sm"
-                        onClick={() => addToCart(product)}
-                        isDisabled={product.stock === 0}
-                      >
-                        Add to Cart
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                ))}
-              </Grid>
+              <Grid templateColumns="repeat(auto-fill, minmax(250px, 1fr))" gap={6}>
+  {products.map((product) => (
+    <Card
+      key={product._id}
+      maxW="sm"
+      borderWidth="0px"
+      borderRadius="md"
+      overflow="hidden"
+      boxShadow="md"
+      _hover={{ boxShadow: "xl", transform: "scale(1.02)", transition: "0.3s" }}
+    >
+      {/* Product Image */}
+      {product.images && product.images.length > 0 && (
+        <Image
+          src={`http://localhost:4000${product.images[0]}`}
+          alt={product.name}
+          objectFit="cover"
+          w="100%"
+          h="250px"
+        />
+      )}
+
+      <CardBody>
+        {/* Product Name */}
+        <Heading size="md" mb={1} noOfLines={2}>
+          {product.name}
+        </Heading>
+
+        {/* Seller */}
+        {/* <Text fontSize="sm" color="gray.500" mb={2}>
+          by {product.sellerId?.name}
+        </Text> */}
+
+        {/* Description */}
+        <Text fontSize="sm" color="gray.600" mb={2} noOfLines={2}>
+          {product.description}
+        </Text>
+
+        {/* Price */}
+        <Text fontSize="xl" fontWeight="bold" color="green.600" mb={1}>
+          ₹{product.price}
+        </Text>
+
+        {/* Stock & Min Order */}
+        <Flex fontSize="sm" color="gray.500" mb={2} justify="space-between">
+          <Text>Stock: {product.stock}</Text>
+          <Text>Min Order: {product.minOrderQuantity}</Text>
+        </Flex>
+
+        {/* Category Badge */}
+        <Badge colorScheme="blue">{product.category}</Badge>
+      </CardBody>
+
+      <CardFooter>
+      <Button
+  bg="#606FC4"
+  color="white"
+  _hover={{ bg: "#4a54a8" }}
+  size="sm"
+  w="100%"
+  onClick={() => addToCart(product)}
+  isDisabled={product.stock === 0}
+>
+  Add to Cart
+</Button>
+
+      </CardFooter>
+    </Card>
+  ))}
+</Grid>
+
             </TabPanel>
 
             <TabPanel>
-              <Heading size="md" mb={4}>My Orders</Heading>
+              <Heading size="md" mb={4}>
+                My Orders
+              </Heading>
               {!token ? (
                 <Text>Please login to view your orders</Text>
               ) : (
@@ -381,7 +448,9 @@ const B2BMarketplace = () => {
                               {order.status}
                             </Badge>
                           </Td>
-                          <Td>{new Date(order.createdAt).toLocaleDateString()}</Td>
+                          <Td>
+                            {new Date(order.createdAt).toLocaleDateString()}
+                          </Td>
                         </Tr>
                       ))}
                     </Tbody>
@@ -423,7 +492,9 @@ const B2BMarketplace = () => {
                               size="sm"
                               maxW={20}
                               value={item.quantity}
-                              onChange={(value) => updateCartQuantity(item.productId, value)}
+                              onChange={(value) =>
+                                updateCartQuantity(item.productId, value)
+                              }
                             >
                               <NumberInputField />
                               <NumberInputStepper>
@@ -467,10 +538,16 @@ const B2BMarketplace = () => {
             <ModalBody>
               <Text mb={4}>Review your order:</Text>
               {cart.map((item) => (
-                <Box key={item.productId} p={2} borderBottom="1px" borderColor="gray.200">
+                <Box
+                  key={item.productId}
+                  p={2}
+                  borderBottom="1px"
+                  borderColor="gray.200"
+                >
                   <Text fontWeight="bold">{item.name}</Text>
                   <Text fontSize="sm" color="gray.600">
-                    Seller: {item.sellerName} | Qty: {item.quantity} | Price: ₹{item.price * item.quantity}
+                    Seller: {item.sellerName} | Qty: {item.quantity} | Price: ₹
+                    {item.price * item.quantity}
                   </Text>
                 </Box>
               ))}

@@ -23,6 +23,7 @@ import ContactUs from '../../src/Kaushik/contact-us'
 import Careers from '../../src/Kaushik/career'
 import BannerForm from '../Kaushik/BannerForm'
 import BannerDisplay from '../Kaushik/BannerDisplay'
+import ProductCardDetails from './ProductCardDetails'
 
 
  
@@ -58,7 +59,7 @@ const AllRoute = () => {
   <Route path="/industrial" element={<Industrialpage/>}/>
   <Route path="/laptop" element={<Laptop/>}/>
   <Route path="/laptop/:id" element={<Details/>}/>
-
+  <Route path="/product/:id" element={<ProductCardDetails />} />
   
  
   </Routes>

@@ -1,68 +1,68 @@
+// src/Kaushik/BannerDisplay.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Box, Image, Heading, Text, Button, Flex } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import Navbar from "../Kaushik/Navbar";
 import Footer from "../Kaushik/Footer";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import "../css/BannerDisplay.css"; // ✅ Custom CSS
 
 const BannerDisplay = () => {
-  const [banner, setBanner] = useState(null);
+  const [banners, setBanners] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:4000/api/banner")
-      .then(res => {
-        if (res.data) {
-          setBanner(res.data);
+    axios
+      .get("http://localhost:4000/api/banner")
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setBanners(res.data);
+        } else if (res.data) {
+          setBanners([res.data]);
         }
       })
-      .catch(err => console.error("Banner fetch error:", err));
+      .catch((err) => console.error("Banner fetch error:", err));
   }, []);
-  
 
-  if (!banner) return null;
+  if (banners.length === 0) return null;
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 800,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+    arrows: true,
+  };
 
   return (
     <>
-    <Navbar />
-    <Flex
-      bgImage={`url(${banner.image && "http://localhost:4000" + banner.image})`}
-      bgSize="cover"
-      bgPos="center"
-      h="300px"
-      align="center"
-      justify="space-between"
-      p={10}
-      color="black"
-      borderRadius="md"
-      boxShadow="lg"
-    >
-      <Box maxW="50%">
-        <Heading size="lg">{banner.title}</Heading>
-        <Text fontSize="xl" mt={2}>
-          {banner.subtitle}
-        </Text>
-        <Text fontWeight="bold" fontSize="2xl" mt={2}>
-          {banner.offerText}
-        </Text>
-        <Button
-          mt={3}
-          colorScheme="pink"
-          as="a"
-          href={banner.buttonLink}
-          target="_blank"
-        >
-          {banner.buttonText}
-        </Button>
+      {/* <Navbar /> */}
+
+      {/* ✅ Slider ko Box ke andar rakha */}
+      <Box mt={1} w="100%" h="330px" position="relative">
+        <Slider {...settings}>
+          {banners.map((banner, idx) => (
+            <Box key={idx} w="100%" h="300px">
+              <img
+                src={"http://localhost:4000" + banner.image}
+                alt={banner.title || `Banner ${idx + 1}`}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "0px",
+                }}
+              />
+            </Box>
+          ))}
+        </Slider>
       </Box>
 
-      <Box>
-        <Image
-          src={"http://localhost:4000" + banner.image}
-          alt="Banner"
-          borderRadius="md"
-        />
-      </Box>
-    </Flex>
-    <Footer />
+      {/* <Footer /> */}
     </>
   );
 };

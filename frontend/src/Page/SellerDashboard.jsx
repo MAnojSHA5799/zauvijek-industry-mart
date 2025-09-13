@@ -53,7 +53,7 @@ import {
 import { AddIcon, EditIcon, DeleteIcon } from '@chakra-ui/icons';
 import Navbar from '../Kaushik/Navbar';
 import Footer from '../Kaushik/Footer';
-
+import ProductModal from './ProductModal';
 const SellerDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [products, setProducts] = useState([]);
@@ -73,7 +73,8 @@ const SellerDashboard = () => {
     category: '',
     brand: '',
     minOrderQuantity: 1,
-    maxOrderQuantity: 1000
+    maxOrderQuantity: 1000,
+    image: null   // 🔹 image ke liye
   });
 
   const token = JSON.parse(localStorage.getItem('token'));
@@ -164,27 +165,43 @@ const SellerDashboard = () => {
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
+  
     try {
-      const response = await fetch('http://localhost:4000/seller/products', {
-        method: 'POST',
+      const formData = new FormData();
+      formData.append("name", productForm.name);
+      formData.append("description", productForm.description);
+      formData.append("price", productForm.price);
+      formData.append("stock", productForm.stock);
+      formData.append("category", productForm.category);
+      formData.append("brand", productForm.brand);
+      formData.append("minOrderQuantity", productForm.minOrderQuantity);
+      formData.append("maxOrderQuantity", productForm.maxOrderQuantity);
+      if (productForm.image) {
+        formData.append("image", productForm.image);
+      }
+      console.log("182",formData)
+  
+      const response = await fetch("http://localhost:4000/seller/products", {
+        method: "POST",
         headers: {
-          'Authorization': token,
-          'Content-Type': 'application/json'
+          Authorization: token, // 🔹 sirf auth bhejna hai, Content-Type nahi
         },
-        body: JSON.stringify(productForm)
+        body: formData,
       });
-      
+  
       const data = await response.json();
+  
       if (response.ok) {
         toast({
-          title: 'Product Added',
-          description: 'Product has been added successfully',
-          status: 'success',
+          title: "Product Added",
+          description: "Product has been added successfully",
+          status: "success",
           duration: 3000,
           isClosable: true,
         });
         fetchProducts();
         onClose();
+  
         setProductForm({
           name: '',
           description: '',
@@ -193,21 +210,23 @@ const SellerDashboard = () => {
           category: '',
           brand: '',
           minOrderQuantity: 1,
-          maxOrderQuantity: 1000
+          maxOrderQuantity: 1000,
+          image: null
         });
       } else {
         throw new Error(data.message);
       }
     } catch (error) {
       toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        status: 'error',
+        status: "error",
         duration: 3000,
         isClosable: true,
       });
     }
   };
+  
 
   const handleUpdateOrderStatus = async (orderId, status) => {
     try {
@@ -468,13 +487,20 @@ const SellerDashboard = () => {
                       value={productForm.category}
                       onChange={(e) => setProductForm({...productForm, category: e.target.value})}
                     >
-                      <option value="">Select Category</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="clothing">Clothing</option>
-                      <option value="home">Home & Garden</option>
-                      <option value="sports">Sports</option>
-                      <option value="books">Books</option>
-                      <option value="automotive">Automotive</option>
+                     <option value="">Select Category</option>
+<option value="electronics">Electronics</option>
+<option value="clothing">Clothing</option>
+<option value="home">Home & Garden</option>
+<option value="sports">Sports</option>
+<option value="books">Books</option>
+<option value="automotive">Automotive</option>
+<option value="machinery">Machinery & Manufacturing</option>
+<option value="construction">Construction & Infrastructure</option>
+<option value="agriculture">Agriculture & Heavy Equipment</option>
+<option value="aerospace">Aerospace</option>
+<option value="defense">Defense</option>
+<option value="household">Household & Consumer</option>
+
                     </Select>
                   </FormControl>
                   <FormControl isRequired>
@@ -532,6 +558,16 @@ const SellerDashboard = () => {
                     rows={4}
                   />
                 </FormControl>
+                <FormControl mt={4} isRequired>
+  <FormLabel>Product Image</FormLabel>
+  <Input
+    type="file"
+    accept="image/*"
+    onChange={(e) => setProductForm({...productForm, image: e.target.files[0]})}
+  />
+</FormControl>
+
+
               </ModalBody>
               <ModalFooter>
                 <Button variant="ghost" mr={3} onClick={onClose}>

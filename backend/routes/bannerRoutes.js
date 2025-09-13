@@ -18,18 +18,21 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // GET latest banner
+// routes/banner.js (example)
+
 router.get("/", async (req, res) => {
     try {
-      const banner = await Banner.findOne().sort({ createdAt: -1 }); // latest
-      if (!banner) {
-        return res.status(404).json({ message: "No banner found" });
+      const banners = await Banner.find().sort({ createdAt: -1 }); // ✅ saare banners latest order me
+      if (!banners || banners.length === 0) {
+        return res.status(404).json({ message: "No banners found" });
       }
-      res.json(banner);
+      res.json(banners); // ✅ array bhej rahe hain
     } catch (err) {
       console.error("Banner fetch error:", err.message);
       res.status(500).json({ error: err.message });
     }
   });
+  
   
 
 // POST /api/banner

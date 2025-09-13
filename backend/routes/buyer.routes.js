@@ -8,7 +8,7 @@ const router = express.Router();
 // Get all approved products (for browsing)
 router.get("/products", async (req, res) => {
     try {
-        const { page = 1, limit = 12, category, search, minPrice, maxPrice } = req.query;
+        const { page = 1, limit = 40, category, search, minPrice, maxPrice } = req.query;
         
         let query = { status: 'approved' };
         

@@ -1,0 +1,17 @@
+/* ✅ dots ko neeche shift kiya */
+.slick-dots {
+    bottom: -25px !important; /* image ke neeche laa diya */
+    background-color: #ffffff;
+  }
+  
+  .slick-dots li button:before {
+    font-size: 12px;
+    color: #ebe5e5; /* inactive grey */
+    opacity: 1;
+  }
+  
+  .slick-dots li.slick-active button:before {
+    color: #606FC4; /* active black */
+    opacity: 1;
+  }
+  
