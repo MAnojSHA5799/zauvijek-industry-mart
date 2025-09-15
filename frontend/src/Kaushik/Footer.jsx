@@ -52,15 +52,15 @@ const Footer = () => {
             <Text fontWeight="600" fontSize="lg" mb={2} color={brandColor}>
               Product
             </Text>
-            <Link href="#">Overview</Link>
+            <Link href="/auction">Auction</Link>
             <Stack direction="row" justify={{ base: "center", md: "flex-start" }}>
-              <Link href="#">Features</Link>
+              <Link href="/forword-auction">Forword Auction </Link>
               <Tag size="sm" bg={brandColor} color="white">
                 New
               </Tag>
             </Stack>
-            <Link href="#">Tutorials</Link>
-            <Link href="#">Pricing</Link>
+            <Link href="/backword-auction">Backword Auction</Link>
+            <Link href="/auction/list">All Auction</Link>
             {/* <Link href="#">Releases</Link> */}
           </Stack>
 
