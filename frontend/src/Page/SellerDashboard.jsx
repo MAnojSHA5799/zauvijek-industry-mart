@@ -101,7 +101,7 @@ const SellerDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('http://localhost:4000/seller/dashboard', {
+      const response = await fetch('https://zauvijek-industry-mart.onrender.com/seller/dashboard', {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
@@ -134,7 +134,7 @@ const SellerDashboard = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:4000/seller/products', {
+      const response = await fetch('https://zauvijek-industry-mart.onrender.com/seller/products', {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
@@ -151,7 +151,7 @@ const SellerDashboard = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:4000/seller/orders', {
+      const response = await fetch('https://zauvijek-industry-mart.onrender.com/seller/orders', {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
@@ -182,7 +182,7 @@ const SellerDashboard = () => {
   //     }
   //     console.log("182",formData)
   
-  //     const response = await fetch("http://localhost:4000/seller/products", {
+  //     const response = await fetch("https://zauvijek-industry-mart.onrender.com/seller/products", {
   //       method: "POST",
   //       headers: {
   //         Authorization: token, // 🔹 sirf auth bhejna hai, Content-Type nahi
@@ -258,7 +258,7 @@ const SellerDashboard = () => {
   //       formData.append("specifications", JSON.stringify(productForm.specifications));
   //     }
   
-  //     const response = await fetch("http://localhost:4000/seller/products", {
+  //     const response = await fetch("https://zauvijek-industry-mart.onrender.com/seller/products", {
   //       method: "POST",
   //       headers: {
   //         Authorization: token, // ✅ sirf auth header bhejna hai
@@ -348,7 +348,7 @@ const SellerDashboard = () => {
         formData.append("specifications", JSON.stringify(productForm.specifications));
       }
   
-      const response = await fetch("http://localhost:4000/seller/products", {
+      const response = await fetch("https://zauvijek-industry-mart.onrender.com/seller/products", {
         method: "POST",
         headers: {
           Authorization: token, // ✅ only auth header
@@ -409,7 +409,7 @@ const SellerDashboard = () => {
 
   const handleUpdateOrderStatus = async (orderId, status) => {
     try {
-      const response = await fetch(`http://localhost:4000/seller/orders/${orderId}/status`, {
+      const response = await fetch(`https://zauvijek-industry-mart.onrender.com/seller/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': token,
@@ -448,7 +448,7 @@ const handleDelete = async (id) => {
   if (!window.confirm("Are you sure you want to delete this product?")) return;
 
   try {
-    await axios.delete(`http://localhost:4000/seller/products/${id}`, {
+    await axios.delete(`https://zauvijek-industry-mart.onrender.com/seller/products/${id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
 

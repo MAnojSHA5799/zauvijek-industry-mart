@@ -24,7 +24,7 @@ const EventsUpdates = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/api/events"); // ✅ backend se events
+        const res = await axios.get("https://zauvijek-industry-mart.onrender.com/api/events"); // ✅ backend se events
         setEvents(res.data);
       } catch (error) {
         console.error("Error fetching events:", error);

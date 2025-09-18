@@ -23,7 +23,7 @@ import Footer from "../Kaushik/Footer";
 
 const login = async (data) => {
   try {
-    const res = await fetch("http://localhost:4000/user/login", {
+    const res = await fetch("https://zauvijek-industry-mart.onrender.com/user/login", {
       method: "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify(data),

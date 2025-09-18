@@ -62,7 +62,7 @@ function ForwardAuction() {
 
   const fetchAuctions = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/auctions");
+      const res = await axios.get("https://zauvijek-industry-mart.onrender.com/api/auctions");
       // ✅ Filter forward auctions
       const forwardAuctions = res.data.filter(
         (auction) => auction.type === "forward"
@@ -161,7 +161,7 @@ function ForwardAuction() {
               (auction.photos && auction.photos.length > 0) ? (
                 <Box h="200px" overflow="hidden">
                   <Image
-                    src={`http://localhost:4000${
+                    src={`https://zauvijek-industry-mart.onrender.com${
                       auction.imageUrl || auction.photos[0]
                     }`}
                     alt={auction.title}

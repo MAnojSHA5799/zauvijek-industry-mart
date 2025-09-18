@@ -31,7 +31,7 @@ const AuctionList = () => {
   // fetch auctions
   const fetchAuctions = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/auctions");
+      const res = await axios.get("https://zauvijek-industry-mart.onrender.com/api/auctions");
       setAuctions(res.data);
     } catch (err) {
       console.error(err);
@@ -55,7 +55,7 @@ const AuctionList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this auction?")) {
       try {
-        await axios.delete(`http://localhost:4000/api/auctions/${id}`);
+        await axios.delete(`https://zauvijek-industry-mart.onrender.com/api/auctions/${id}`);
         toast({
           title: "Auction deleted successfully!",
           status: "success",
@@ -126,7 +126,7 @@ const AuctionList = () => {
                   {auction.imageUrl ||
                   (auction.photos && auction.photos.length > 0) ? (
                     <Image
-                      src={`http://localhost:4000${
+                      src={`https://zauvijek-industry-mart.onrender.com${
                         auction.imageUrl || auction.photos[0]
                       }`}
                       alt={auction.title}
@@ -189,7 +189,7 @@ const AuctionList = () => {
                       {auction.imageUrl ||
                       (auction.photos && auction.photos.length > 0) ? (
                         <Image
-                          src={`http://localhost:4000${
+                          src={`https://zauvijek-industry-mart.onrender.com${
                             auction.imageUrl || auction.photos[0]
                           }`}
                           alt={auction.title}

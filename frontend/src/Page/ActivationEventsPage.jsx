@@ -21,7 +21,7 @@ const TendersPage = () => {
   useEffect(() => {
     const fetchTenders = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/tenders.json"); // ✅ tenders.json must be inside public/
+        const res = await axios.get("https://zauvijek-industry-mart.vercel.app/tenders.json"); // ✅ tenders.json must be inside public/
         setTenders(res.data || []);
       } catch (err) {
         console.error("Error loading tenders.json", err);

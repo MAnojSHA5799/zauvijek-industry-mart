@@ -1,3 +1,3 @@
 # zauvijek-industry-mart
 
-http://localhost:4000
+https://zauvijek-industry-mart.onrender.com

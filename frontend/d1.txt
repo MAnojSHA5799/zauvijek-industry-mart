@@ -29,7 +29,7 @@ const AuctionList = () => {
   // Auction fetch
   const fetchAuctions = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/auctions");
+      const res = await axios.get("https://zauvijek-industry-mart.onrender.com/api/auctions");
       setAuctions(res.data);
     } catch (err) {
       console.error(err);
@@ -88,7 +88,7 @@ const AuctionList = () => {
             {auction.imageUrl ? (
               <Box h="200px" overflow="hidden">
                 <Image
-                  src={`http://localhost:4000${auction.imageUrl}`}
+                  src={`https://zauvijek-industry-mart.onrender.com${auction.imageUrl}`}
                   alt={auction.title}
                   w="100%"
                   h="100%"
@@ -208,7 +208,7 @@ const AuctionList = () => {
                     <Td>
                       {selectedAuction.materialCertificate ? (
                         <a
-                          href={`http://localhost:4000${selectedAuction.materialCertificate}`}
+                          href={`https://zauvijek-industry-mart.onrender.com${selectedAuction.materialCertificate}`}
                           target="_blank"
                           rel="noreferrer"
                           style={{ color: "blue" }}
@@ -225,7 +225,7 @@ const AuctionList = () => {
                     <Td>
                       {selectedAuction.photos ? (
                         <Image
-                          src={`http://localhost:4000${selectedAuction.photos}`}
+                          src={`https://zauvijek-industry-mart.onrender.com${selectedAuction.photos}`}
                           alt="Auction Photos"
                           w="100px"
                           h="100px"
