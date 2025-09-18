@@ -47,7 +47,7 @@ const ProductModal = ({ isOpen, onClose, fetchProducts, token }) => {
         formData.append("image", productForm.image);
       }
 
-      const response = await fetch("https://zauvijek-industry-mart.onrender.com/seller/products", {
+      const response = await fetch("http://localhost:4000/seller/products", {
         method: "POST",
         headers: {
           Authorization: token, // 🔹 sirf auth bhejna hai

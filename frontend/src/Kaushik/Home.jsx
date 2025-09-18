@@ -67,10 +67,12 @@ const Home = () => {
     fetchProducts();
   }, []);
 
+  // 1️⃣ Fetch products from backend
   const fetchProducts = async () => {
     try {
-      const response = await fetch("https://zauvijek-industry-mart.onrender.com/buyer/products");
+      const response = await fetch("http://localhost:4000/buyer/products");
       const data = await response.json();
+      console.log("75",data.product || [])
       setProducts(data.products || []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -86,6 +88,11 @@ const Home = () => {
     }
   };
 
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  // 2️⃣ Group products by category
   const groupedProducts = products.reduce((acc, product) => {
     const category = product.category || "Other";
     if (!acc[category]) acc[category] = [];
@@ -93,13 +100,20 @@ const Home = () => {
     return acc;
   }, {});
 
-  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
-
+  // 3️⃣ Custom order: Steel → Machinery → Electronics → Automotive → Others
+  const categoryOrder = ["steel", "machinery", "electronics", "automotive"];
   const orderedCategories = Object.keys(groupedProducts).sort((a, b) => {
-    if (a.toLowerCase() === "electronics") return -1;
-    if (b.toLowerCase() === "electronics") return 1;
-    return a.localeCompare(b);
+    const aIndex = categoryOrder.indexOf(a.toLowerCase());
+    const bIndex = categoryOrder.indexOf(b.toLowerCase());
+
+    if (aIndex === -1 && bIndex === -1) return a.localeCompare(b);
+    if (aIndex === -1) return 1;
+    if (bIndex === -1) return -1;
+    return aIndex - bIndex;
   });
+
+  // 4️⃣ Capitalize function
+  const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
   return (
     <>
@@ -173,33 +187,33 @@ const Home = () => {
   {loading ? (
     <Text fontSize={{ base: "14px", sm: "16px" }}>Loading products...</Text>
   ) : (
-    orderedCategories.map((category) => (
-      <Box
-        key={category}
-        borderTop="3px solid #606FC4"
-        backgroundColor="white"
-        marginTop={{ base: "20px", sm: "40px" }}
-        w="100%"
-      >
-        {/* Category Heading */}
-        <Heading
-          align="left"
-          p={{ base: "5px 8px", sm: "5px 10px" }}
-          fontSize={{ base: "16px", sm: "20px", md: "28px" }}
-          fontFamily="Arial"
-          color="#606FC4"
+    <Box maxW="1200px" mx="auto" px={{ base: 2, sm: 4 }} py={{ base: 2, sm: 4 }}>
+      {orderedCategories.map((category) => (
+        <Box
+          key={category}
+          borderTop="3px solid #606FC4"
+          backgroundColor="white"
+          marginTop={{ base: "20px", sm: "40px" }}
+          w="100%"
+          p={4}
         >
-          {capitalize(category)}
-        </Heading>
+          {/* Category Heading */}
+          {/* <Heading
+            align="left"
+            fontSize={{ base: "16px", sm: "20px", md: "28px" }}
+            fontFamily="Arial"
+            color="#606FC4"
+            mb={4}
+          >
+            {capitalize(category)}
+          </Heading> */}
 
-        <Flex height="100%" w="100%" m="auto" p={{ base: "5px 0px", sm: "10px 0px" }}>
+          {/* Product Grid */}
           <SimpleGrid
-            height="100%"
-            w="100%"
-            columns={{ base: 2, sm: 2, md: 3 }}
+            columns={{ base: 2, sm: 2, md: 4 }}
             spacing={{ base: 3, sm: 4, md: 5 }}
           >
-            {groupedProducts[category].slice(0, 6).map((el, i) => (
+            {groupedProducts[category].map((el, i) => (
               <MotionFlex
                 key={el._id}
                 p={{ base: "6px", sm: "10px" }}
@@ -217,16 +231,45 @@ const Home = () => {
                   boxShadow: "0px 6px 15px rgba(0, 0, 0, 0.2)",
                 }}
               >
-                {/* Product Image */}
-                <Box w="100%">
+                {/* Product Image with Condition Badge */}
+                <Box w="100%" position="relative">
                   <Image
                     width="100%"
                     height={{ base: "140px", sm: "180px", md: "250px" }}
                     objectFit="cover"
                     borderRadius="md"
-                    src={`https://zauvijek-industry-mart.onrender.com${el.images?.[0]}`}
+                    src={`http://localhost:4000${el.images?.[0]}`}
                     alt={el.name}
                   />
+
+                  {/* Condition Badge */}
+                  {el.condition && (
+                    <Box
+                      position="absolute"
+                      top="10px"
+                      left="5px"
+                      bg={
+                        el.condition === "New"
+                          ? "#606FC4"
+                          : el.condition === "Refurbished"
+                          ? "orange.500"
+                          : el.condition === "Resale"
+                          ? "blue.500"
+                          : "gray.500"
+                      }
+                      color="white"
+                      fontSize={{ base: "10px", sm: "12px" }}
+                      fontWeight="bold"
+                      px={3}
+                      py={1}
+                      borderRadius="full"
+                      boxShadow="0px 2px 6px rgba(0,0,0,0.3)"
+                      textAlign="center"
+                      // textTransform="uppercase"
+                    >
+                      {el.condition}
+                    </Box>
+                  )}
                 </Box>
 
                 {/* Product Info */}
@@ -247,13 +290,8 @@ const Home = () => {
                     {el.description?.slice(0, 40)}...
                   </Text>
 
-                  {/* Price + Button */}
-                  <Flex
-                    mt={2}
-                    justifyContent="space-between"
-                    alignItems="center"
-                    gap={2}
-                  >
+                  {/* Price + View Button */}
+                  <Flex mt={2} justifyContent="space-between" alignItems="center" gap={2}>
                     <Text
                       fontSize={{ base: "12px", sm: "13px" }}
                       fontWeight="bold"
@@ -283,14 +321,15 @@ const Home = () => {
               </MotionFlex>
             ))}
           </SimpleGrid>
-        </Flex>
-      </Box>
-    ))
+        </Box>
+      ))}
+    </Box>
+    
   )}
 </Box>
 
       {/* --------------------------------Brands------------------------------------- */}
-<Box borderTop="3px solid purple" backgroundColor="white" mt="20px" w="100%">
+{/* <Box borderTop="3px solid purple" backgroundColor="white" mt="20px" w="100%">
   <Heading
     align="left"
     p="5px 10px"
@@ -311,7 +350,7 @@ const Home = () => {
   </Slider>
 </Box>
 
-</Box>
+</Box> */}
 
 
 

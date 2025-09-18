@@ -8,16 +8,25 @@ import {
   Button,
   Spinner,
   useToast,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useParams, Link } from "react-router-dom";
-import Navbar from '../Kaushik/Navbar';
-import Footer from '../Kaushik/Footer';
+import Navbar from "../Kaushik/Navbar";
+import Footer from "../Kaushik/Footer";
 
 const ProductCardDetails = () => {
   const { id } = useParams(); // get product id from URL
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     fetchProduct();
@@ -25,8 +34,11 @@ const ProductCardDetails = () => {
 
   const fetchProduct = async () => {
     try {
-      const response = await fetch(`https://zauvijek-industry-mart.onrender.com/buyer/products/${id}`);
+      const response = await fetch(
+        `http://localhost:4000/buyer/products/${id}`
+      );
       const data = await response.json();
+      console.log("Fetched Product:", data.product);
       setProduct(data.product); // assuming API returns { product: {...} }
     } catch (error) {
       console.error("Error fetching product:", error);
@@ -81,7 +93,7 @@ const ProductCardDetails = () => {
             {product.images?.map((img, i) => (
               <Image
                 key={i}
-                src={`https://zauvijek-industry-mart.onrender.com${img}`}
+                src={`http://localhost:4000${img}`}
                 alt={product.name}
                 borderRadius="md"
                 mb={4}
@@ -97,12 +109,28 @@ const ProductCardDetails = () => {
             <Text fontSize="xl" fontWeight="bold" mb={2}>
               ₹{product.price}
             </Text>
-            <Text fontSize="md" mb={4}>
+            <Text fontSize="md" mb={2}>
               Category: <strong>{product.category}</strong>
+            </Text>
+            <Text fontSize="md" mb={2}>
+              Condition: <strong>{product.condition}</strong>
+            </Text>
+            <Text fontSize="md" mb={2}>
+              Stock: <strong>{product.stock}</strong>
             </Text>
             <Text fontSize="md" mb={4}>
               {product.description}
             </Text>
+
+            {/* Seller Details Button */}
+            <Button
+              colorScheme="teal"
+              onClick={onOpen}
+              mr={4}
+              _hover={{ transform: "scale(1.05)" }}
+            >
+              View Seller Details
+            </Button>
 
             {/* Back button */}
             <Link to="/">
@@ -116,6 +144,31 @@ const ProductCardDetails = () => {
           </Box>
         </Flex>
       </Box>
+
+      {/* Seller Details Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Seller Information</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text fontSize="md" mb={2}>
+              <strong>Name:</strong> {product?.sellerId?.name}
+            </Text>
+            <Text fontSize="md" mb={2}>
+              <strong>Email:</strong> {product?.sellerId?.email}
+            </Text>
+            <Text fontSize="md" mb={2}>
+              <strong>Phone:</strong> {product?.sellerId?.phone}
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       <Footer />
     </>

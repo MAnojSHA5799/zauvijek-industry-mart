@@ -5,202 +5,203 @@ import {
   FormLabel,
   Input,
   InputGroup,
-  HStack,
   InputRightElement,
   Stack,
   Button,
   Heading,
   Text,
-  useToast
-  
-  
-} from '@chakra-ui/react';
+  useToast,
+  Image,
+} from "@chakra-ui/react";
 
-import { Link } from 'react-router-dom'
-import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import Navbar from '../Kaushik/Navbar';
-import Footer from '../Kaushik/Footer';
+import { Link } from "react-router-dom";
+import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Navbar from "../Kaushik/Navbar";
+import Footer from "../Kaushik/Footer";
 
-
-
-const login=async(data)=>{
-
+const login = async (data) => {
   try {
-    const res = await fetch("https://zauvijek-industry-mart.onrender.com/user/login", {
+    const res = await fetch("http://localhost:4000/user/login", {
       method: "POST",
-      headers: {
-        "Content-type": "application/json"
-      },
-      body: JSON.stringify(data)
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify(data),
     });
-    const res_1 = await res.json();
-  
-    return res_1
-
+    return await res.json();
   } catch (err) {
-    return console.log(err);
+    console.log(err);
+    return { message: "Server error" };
   }
-}
+};
 
-const initdata={
+const initdata = { email: "", password: "" };
 
- email:"",
- password:""
-
-}
-
-
-
-
-
-  
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [data, setdata] = useState(initdata);
+  const navigate = useNavigate();
+  const toast = useToast();
 
-  const [data,setdata]=useState(initdata)
-  const navigate= useNavigate()
-  const toast=useToast()
+  const handlechange = (e) => {
+    const { name, value } = e.target;
+    setdata({ ...data, [name]: value });
+  };
 
+  const handlesubmit = async (e) => {
+    e.preventDefault();
+    const res = await login(data);
+    if (res.token) {
+      localStorage.setItem("token", JSON.stringify(res.token));
+      localStorage.setItem("userDetails", JSON.stringify(res.userDetails));
 
-  const handlechange=(e)=>{
-    const {name,value}=e.target 
-    setdata({
-      ...data,
-      [name]:value
-      
-    })
-   
-  }
-  const handlesubmit=async(e)=>{
-    e.preventDefault()
-  console.log(data)
-  login(data).then(res=>{
-    if(res.token){
-      localStorage.setItem("token",JSON.stringify(res.token))
-      localStorage.setItem("userDetails",JSON.stringify(res.userDetails))
-      console.log(res)
       toast({
-        title:`${res.message}`,
+        title: res.message,
         description: `Welcome ${res.userDetails.name}! Role: ${res.userDetails.role}`,
-        status: 'success',
+        status: "success",
         duration: 3000,
         isClosable: true,
-      })
-      
-      // Navigate based on role
-      if(res.userDetails.role === 'admin'){
-        navigate("/admin/dashboard")
-      } else if(res.userDetails.role === 'seller'){
-        navigate("/seller/dashboard")
-      } else {
-        navigate("/")
-      }
+      });
+
+      if (res.userDetails.role === "admin") navigate("/admin/dashboard");
+      else if (res.userDetails.role === "seller") navigate("/seller/dashboard");
+      else navigate("/");
     } else {
       toast({
         title: "Login Failed",
         description: res.message || "Invalid credentials",
-        status: 'error',
+        status: "error",
         duration: 3000,
         isClosable: true,
-      })
+      });
     }
-  })
+    setdata(initdata);
+  };
 
- setdata(initdata)
- 
-  }
-  
-
-
-  const {email,password}=data
-
-
+  const { email, password } = data;
 
   return (
     <>
-    <Navbar/>
-    <div>
-    <Flex
-     
-      align='center'
-      justify='center'
-   maxW={{base:"100%",md:"50%"}}
-   m="auto"
-      
-   boxShadow='base' p='6' rounded='md' bg='white'
+      <Navbar />
+      <Flex
+        mt="3%"
+        minH="100vh"
+        bg="gray.50"
+        direction={{ base: "column", md: "row" }}
+        align="stretch"
       >
-      
-      <Stack justifyContent={"space-around"}  mx={'auto'} w="100%" p={10} bg={"none"}>
-        <Stack textAlign={"center"}  alignItem={'center'} m="auto" bg={"green"}  borderRadius={"5px"} height={"100px"}p={5}  >
-          <Heading fontSize={'sm'} color={"white"} textAlign={'center'}>
-            LOG IN
-          </Heading>
-          <Text fontSize={'sm'} color={'white'}>
-            Welcome to  Zauvijek MetalX Mart ✌️
-          </Text>
-        </Stack>
+        {/* Left Side Image with Gradient */}
         <Box
-        
-          rounded={'lg'}
-      
-          boxShadow={'none'}
-          p={8}>
-          <Stack >
-          <form onSubmit={handlesubmit}>
-           
-               
-              
-            <FormControl id="email" isRequired>
-            <FormLabel color={"black"}>Email address</FormLabel>
-            <Input style={{ color:"black"}} type="email" onChange={handlechange} value={email} name="email" />
-          </FormControl>  
-          <FormControl id="password" isRequired>
-          <FormLabel color={"black"}>Password</FormLabel>
-          <InputGroup >
-            <Input style={{color:"black"}} type={showPassword ? 'text' : 'password'} onChange={handlechange} value={password} name="password" />
-            <InputRightElement h={'full'}>
-              <Button
-                variant={'ghost'}
-                onClick={() =>
-                  setShowPassword((showPassword) => !showPassword)
-                }>
-                {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-        </FormControl>   
-         <Stack spacing={5} pt={2}>
-              <Input
-            
-                loadingText="Submitting"
-                type={"submit"}
-                value={"Login"}
-                size="lg"
-                textAlign={"center"}
-                bg={'blue.400'}
-                color={'white'}
-                _hover={{
-                  bg: 'blue',
-                }}
-               placeholder="Login" 
-              />
-            </Stack>
-            <Stack pt={6}>
-            <Text align={'center'} color={"black"} marginTop={"0px"} fontWeight="bold">
-             Not have a account? <Link to="/signup">Signup</Link>
-            </Text>
-          </Stack>
-            </form>
-          </Stack>
+          flex="1"
+          display={{ base: "none", md: "block" }}
+          position="relative"
+        >
+          <Image
+            src="/as.jpg"
+            alt="Login Illustration"
+            objectFit="cover"
+            h="100%"
+            w="100%"
+            boxShadow="2xl"
+          />
+          <Box
+            position="absolute"
+            top="0"
+            left="0"
+            w="100%"
+            h="100%"
+            bg="linear-gradient(to right, rgba(0,0,0,0.7), rgba(0,0,0,0.1))"
+          />
         </Box>
-      </Stack>
 
-    </Flex>
-    </div>
-    <Footer/>
+        {/* Right Side Form Box */}
+        <Flex flex="1" align="center" justify="center" p={8}>
+          <Box
+            mt="0%"
+            w="100%"
+            maxW="md"
+            bg="white"
+            p={8}
+            rounded="lg"
+            // boxShadow="lg"
+            h="auto"
+          >
+            <Stack textAlign="center" mb={6}>
+              <Heading
+                fontSize={{ base: "2xl", md: "3xl" }}
+                color="#606FC4"
+                fontWeight="bold"
+                mb={4}
+                textAlign="center"
+              >
+                Welcome — Let's Log In
+              </Heading>
+
+              <Text fontSize="1xl" color="gray.600">
+                Please login to continue to Zauvijek MetalX Mart
+              </Text>
+            </Stack>
+
+            <form onSubmit={handlesubmit}>
+              <Stack spacing={4}>
+                <FormControl id="email" isRequired>
+                  <FormLabel>Email address</FormLabel>
+                  <Input
+                    type="email"
+                    onChange={handlechange}
+                    value={email}
+                    name="email"
+                    color="black"
+                  />
+                </FormControl>
+
+                <FormControl id="password" isRequired>
+                  <FormLabel>Password</FormLabel>
+                  <InputGroup>
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      onChange={handlechange}
+                      value={password}
+                      name="password"
+                      color="black"
+                    />
+                    <InputRightElement h="full">
+                      <Button
+                        variant="ghost"
+                        onClick={() =>
+                          setShowPassword((showPassword) => !showPassword)
+                        }
+                      >
+                        {showPassword ? <ViewIcon /> : <ViewOffIcon />}
+                      </Button>
+                    </InputRightElement>
+                  </InputGroup>
+                </FormControl>
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  w="full"
+                  bg="#606FC4"
+                  color="white"
+                  _hover={{ bg: "#4a55a1" }}
+                  borderRadius="full"
+                >
+                  Login
+                </Button>
+
+                <Text align="center" color="black" fontWeight="bold">
+                  Not have an account?{" "}
+                  <Link to="/signup" style={{ color: "#606FC4" }}>
+                    Signup
+                  </Link>
+                </Text>
+              </Stack>
+            </form>
+          </Box>
+        </Flex>
+      </Flex>
+      <Footer />
     </>
-  
   );
 }

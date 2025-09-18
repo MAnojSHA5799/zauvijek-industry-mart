@@ -91,7 +91,7 @@ const B2BMarketplace = () => {
       if (maxPrice) params.append("maxPrice", maxPrice);
 
       const response = await fetch(
-        `https://zauvijek-industry-mart.onrender.com/buyer/products?${params}`
+        `http://localhost:4000/buyer/products?${params}`
       );
       const data = await response.json();
       console.log("92", data.products);
@@ -105,7 +105,7 @@ const B2BMarketplace = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch("https://zauvijek-industry-mart.onrender.com/buyer/categories");
+      const response = await fetch("http://localhost:4000/buyer/categories");
       const data = await response.json();
       setCategories(data.categories || []);
     } catch (error) {
@@ -115,7 +115,7 @@ const B2BMarketplace = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch("https://zauvijek-industry-mart.onrender.com/buyer/orders", {
+      const response = await fetch("http://localhost:4000/buyer/orders", {
         headers: {
           Authorization: token,
           "Content-Type": "application/json",
@@ -204,7 +204,7 @@ const B2BMarketplace = () => {
     }
 
     try {
-      const response = await fetch("https://zauvijek-industry-mart.onrender.com/buyer/orders", {
+      const response = await fetch("http://localhost:4000/buyer/orders", {
         method: "POST",
         headers: {
           Authorization: token,
@@ -355,29 +355,59 @@ const B2BMarketplace = () => {
       borderRadius="md"
       overflow="hidden"
       boxShadow="md"
-      _hover={{ boxShadow: "xl", transform: "scale(1.02)", transition: "0.3s" }}
+      _hover={{
+        boxShadow: "xl",
+        transform: "scale(1.02)",
+        transition: "0.3s",
+      }}
     >
-      {/* Product Image */}
-      {product.images && product.images.length > 0 && (
-        <Image
-          src={`https://zauvijek-industry-mart.onrender.com${product.images[0]}`}
-          alt={product.name}
-          objectFit="cover"
-          w="100%"
-          h="250px"
-        />
-      )}
+      {/* Product Image with Condition Badge */}
+      <Box position="relative">
+        {product.images && product.images.length > 0 && (
+          <Image
+            src={`http://localhost:4000${product.images[0]}`}
+            alt={product.name}
+            objectFit="cover"
+            w="100%"
+            h="250px"
+          />
+        )}
+
+        {/* Condition Badge */}
+        {product.condition && (
+          <Box
+            position="absolute"
+            top="10px"
+            left="5px"
+            bg={
+              product.condition === "New"
+                ? "#606FC4"
+                          : product.condition === "Refurbished"
+                          ? "orange.500"
+                          : product.condition === "Resale"
+                          ? "blue.500"
+                          : "gray.500"
+            }
+            color="white"
+            fontSize="12px"
+            fontWeight="bold"
+            px={3}
+            py={1}
+            borderRadius="full"
+            boxShadow="0px 2px 6px rgba(0,0,0,0.3)"
+            textAlign="center"
+            // textTransform="uppercase"
+          >
+            {product.condition}
+          </Box>
+        )}
+      </Box>
 
       <CardBody>
         {/* Product Name */}
         <Heading size="md" mb={1} noOfLines={2}>
           {product.name}
         </Heading>
-
-        {/* Seller */}
-        {/* <Text fontSize="sm" color="gray.500" mb={2}>
-          by {product.sellerId?.name}
-        </Text> */}
 
         {/* Description */}
         <Text fontSize="sm" color="gray.600" mb={2} noOfLines={2}>
@@ -400,18 +430,17 @@ const B2BMarketplace = () => {
       </CardBody>
 
       <CardFooter>
-      <Button
-  bg="#606FC4"
-  color="white"
-  _hover={{ bg: "#4a54a8" }}
-  size="sm"
-  w="100%"
-  onClick={() => addToCart(product)}
-  isDisabled={product.stock === 0}
->
-  Add to Cart
-</Button>
-
+        <Button
+          bg="#606FC4"
+          color="white"
+          _hover={{ bg: "#4a54a8" }}
+          size="sm"
+          w="100%"
+          onClick={() => addToCart(product)}
+          isDisabled={product.stock === 0}
+        >
+          Add to Cart
+        </Button>
       </CardFooter>
     </Card>
   ))}

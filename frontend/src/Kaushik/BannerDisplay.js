@@ -14,7 +14,7 @@ const BannerDisplay = () => {
 
   useEffect(() => {
     axios
-      .get("https://zauvijek-industry-mart.onrender.com/api/banner")
+      .get("http://localhost:4000/api/banner")
       .then((res) => {
         if (Array.isArray(res.data)) {
           setBanners(res.data);
@@ -48,7 +48,7 @@ const BannerDisplay = () => {
           {banners.map((banner, idx) => (
             <Box key={idx} w="100%" h="300px">
               <img
-                src={"https://zauvijek-industry-mart.onrender.com" + banner.image}
+                src={"http://localhost:4000" + banner.image}
                 alt={banner.title || `Banner ${idx + 1}`}
                 style={{
                   width: "100%",

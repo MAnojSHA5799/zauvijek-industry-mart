@@ -109,7 +109,7 @@ router.put("/users/:id/status", authorization, adminOnly, async (req, res) => {
 // Get all products with pagination and filtering
 router.get("/products", authorization, adminOnly, async (req, res) => {
     try {
-        const { page = 1, limit = 40, status, category } = req.query;
+        const { page = 1, limit = 80, status, category } = req.query;
         
         let query = {};
         if (status) query.status = status;

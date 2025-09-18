@@ -1,99 +1,103 @@
 // src/components/EventsUpdates.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import {
+  Box,
+  Text,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Image,
+} from "@chakra-ui/react";
 
 const EventsUpdates = () => {
   const [events, setEvents] = useState([]);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await axios.get("https://newsapi.org/v2/everything", {
-          params: {
-            q: "steel OR metal OR machinery",
-            sortBy: "publishedAt",
-            language: "en",
-            pageSize: 22, // show max 12 events
-            apiKey: "3a2dcdaefb8b4867a5775854cc121c11", // replace with your key
-          },
-        });
-        setEvents(res.data.articles);
+        const res = await axios.get("http://localhost:4000/api/events"); // ✅ backend se events
+        setEvents(res.data);
       } catch (error) {
         console.error("Error fetching events:", error);
       }
     };
-
     fetchEvents();
   }, []);
 
-  return (
-    <div style={{ padding: "40px 20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <h2 style={{ textAlign: "center", color: "#606FC4", marginBottom: "30px" }}>
-        Events & Updates
-      </h2>
+  const handleOpenModal = (event) => {
+    setSelectedEvent(event);
+    onOpen();
+  };
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: "20px",
-        }}
-      >
-        {events.map((event, idx) => (
-          <div
-            key={idx}
-            style={{
-              background: "#d7dbf7",
-              border: "1px solid #606FC4",
-              borderRadius: "12px",
-              boxShadow: "0 6px 15px rgba(0,0,0,0.15)",
-              overflow: "hidden",
-              transition: "transform 0.3s, box-shadow 0.3s",
-              cursor: "pointer",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-5px)";
-              e.currentTarget.style.boxShadow = "0 10px 25px rgba(0,0,0,0.25)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 6px 15px rgba(0,0,0,0.15)";
-            }}
-          >
-            {event.urlToImage && (
-              <img
-                src={event.urlToImage}
-                alt={event.title}
-                style={{ width: "100%", height: "150px", objectFit: "cover" }}
-              />
-            )}
-            <div style={{ padding: "15px" }}>
-              <h3 style={{ color: "#606FC4", marginBottom: "10px", fontSize: "16px" }}>
-                {event.title.length > 70 ? event.title.slice(0, 70) + "..." : event.title}
-              </h3>
-              <p style={{ fontSize: "12px", color: "#555", marginBottom: "10px" }}>
-                {new Date(event.publishedAt).toLocaleDateString()}
-              </p>
-              <a
-                href={event.url}
+  return (
+    <>
+      {events.map((event, idx) => (
+        <Box
+          key={idx}
+          onClick={() => handleOpenModal(event)}
+          _hover={{ color: "#d7dbf7" }}
+          cursor="pointer"
+          mb={2}
+        >
+          <Text fontSize="14px" color="white">
+            › {event.title.length > 60 ? event.title.slice(0, 60) + "..." : event.title}
+          </Text>
+        </Box>
+      ))}
+
+      {/* ✅ Modal */}
+      {selectedEvent && (
+        <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader color="#606FC4" fontWeight="bold">
+              {selectedEvent.title}
+            </ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              {selectedEvent.urlToImage && (
+                <Image
+                  src={selectedEvent.urlToImage}
+                  alt={selectedEvent.title}
+                  borderRadius="md"
+                  mb={4}
+                />
+              )}
+              <Text fontSize="sm" color="gray.500" mb={2}>
+                Published: {new Date(selectedEvent.publishedAt).toLocaleString()}
+              </Text>
+              <Text fontSize="md" color="gray.700" mb={4}>
+                {selectedEvent.description || "No description available."}
+              </Text>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                as="a"
+                href={selectedEvent.url}
                 target="_blank"
                 rel="noreferrer"
-                style={{
-                  textDecoration: "none",
-                  color: "#fff",
-                  background: "#606FC4",
-                  padding: "6px 12px",
-                  borderRadius: "6px",
-                  fontSize: "14px",
-                }}
+                bg="#606FC4"
+                color="white"
+                _hover={{ bg: "#5058B3" }}
+                mr={3}
               >
-                Read More
-              </a>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+                Read Full Article
+              </Button>
+              <Button onClick={onClose}>Close</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
+    </>
   );
 };
 

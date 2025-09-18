@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from "axios";
 import {
   Box,
   Grid,
@@ -100,7 +101,7 @@ const SellerDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('https://zauvijek-industry-mart.onrender.com/seller/dashboard', {
+      const response = await fetch('http://localhost:4000/seller/dashboard', {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
@@ -133,7 +134,7 @@ const SellerDashboard = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('https://zauvijek-industry-mart.onrender.com/seller/products', {
+      const response = await fetch('http://localhost:4000/seller/products', {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
@@ -150,7 +151,7 @@ const SellerDashboard = () => {
 
   const fetchOrders = async () => {
     try {
-      const response = await fetch('https://zauvijek-industry-mart.onrender.com/seller/orders', {
+      const response = await fetch('http://localhost:4000/seller/orders', {
         headers: {
           'Authorization': token,
           'Content-Type': 'application/json'
@@ -162,6 +163,156 @@ const SellerDashboard = () => {
       console.error('Error fetching orders:', error);
     }
   };
+
+  // const handleAddProduct = async (e) => {
+  //   e.preventDefault();
+  
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("name", productForm.name);
+  //     formData.append("description", productForm.description);
+  //     formData.append("price", productForm.price);
+  //     formData.append("stock", productForm.stock);
+  //     formData.append("category", productForm.category);
+  //     formData.append("brand", productForm.brand);
+  //     formData.append("minOrderQuantity", productForm.minOrderQuantity);
+  //     formData.append("maxOrderQuantity", productForm.maxOrderQuantity);
+  //     if (productForm.image) {
+  //       formData.append("image", productForm.image);
+  //     }
+  //     console.log("182",formData)
+  
+  //     const response = await fetch("http://localhost:4000/seller/products", {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: token, // 🔹 sirf auth bhejna hai, Content-Type nahi
+  //       },
+  //       body: formData,
+  //     });
+  
+  //     const data = await response.json();
+  
+  //     if (response.ok) {
+  //       toast({
+  //         title: "Product Added",
+  //         description: "Product has been added successfully",
+  //         status: "success",
+  //         duration: 3000,
+  //         isClosable: true,
+  //       });
+  //       fetchProducts();
+  //       onClose();
+  
+  //       setProductForm({
+  //         name: '',
+  //         description: '',
+  //         price: '',
+  //         stock: '',
+  //         category: '',
+  //         brand: '',
+  //         minOrderQuantity: 1,
+  //         maxOrderQuantity: 1000,
+  //         image: null
+  //       });
+  //     } else {
+  //       throw new Error(data.message);
+  //     }
+  //   } catch (error) {
+  //     toast({
+  //       title: "Error",
+  //       description: error.message,
+  //       status: "error",
+  //       duration: 3000,
+  //       isClosable: true,
+  //     });
+  //   }
+  // };
+  
+
+  // const handleAddProduct = async (e) => {
+  //   e.preventDefault();
+  
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("name", productForm.name);
+  //     formData.append("description", productForm.description);
+  //     formData.append("price", productForm.price);
+  //     formData.append("stock", productForm.stock);
+  //     formData.append("category", productForm.category);
+  //     formData.append("brand", productForm.brand);
+  //     formData.append("minOrderQuantity", productForm.minOrderQuantity);
+  //     formData.append("maxOrderQuantity", productForm.maxOrderQuantity);
+  
+  //     // 🔹 Image
+  //     if (productForm.image) {
+  //       formData.append("image", productForm.image);
+  //     }
+  
+  //     // 🔹 Features (array → JSON string)
+  //     if (productForm.features?.length > 0) {
+  //       formData.append("features", JSON.stringify(productForm.features));
+  //     }
+  
+  //     // 🔹 Specifications (object → JSON string)
+  //     if (productForm.specifications) {
+  //       formData.append("specifications", JSON.stringify(productForm.specifications));
+  //     }
+  
+  //     const response = await fetch("http://localhost:4000/seller/products", {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: token, // ✅ sirf auth header bhejna hai
+  //       },
+  //       body: formData,
+  //     });
+  
+  //     const data = await response.json();
+  
+  //     if (response.ok) {
+  //       toast({
+  //         title: "Product Added",
+  //         description: "Product has been added successfully",
+  //         status: "success",
+  //         duration: 3000,
+  //         isClosable: true,
+  //       });
+  
+  //       fetchProducts();
+  //       onClose();
+  
+  //       // Reset form
+  //       setProductForm({
+  //         name: "",
+  //         description: "",
+  //         price: "",
+  //         stock: "",
+  //         category: "",
+  //         brand: "",
+  //         features: [],
+  //         specifications: {
+  //           product: "",
+  //           specification: "",
+  //           size: "",
+  //           packing: "",
+  //           origin: "",
+  //         },
+  //         minOrderQuantity: 1,
+  //         maxOrderQuantity: 1000,
+  //         image: null,
+  //       });
+  //     } else {
+  //       throw new Error(data.message);
+  //     }
+  //   } catch (error) {
+  //     toast({
+  //       title: "Error",
+  //       description: error.message,
+  //       status: "error",
+  //       duration: 3000,
+  //       isClosable: true,
+  //     });
+  //   }
+  // };
 
   const handleAddProduct = async (e) => {
     e.preventDefault();
@@ -176,15 +327,31 @@ const SellerDashboard = () => {
       formData.append("brand", productForm.brand);
       formData.append("minOrderQuantity", productForm.minOrderQuantity);
       formData.append("maxOrderQuantity", productForm.maxOrderQuantity);
+  
+      // 🔹 Condition (New, Refurbished, Resale)
+      if (productForm.condition) {
+        formData.append("condition", productForm.condition);
+      }
+  
+      // 🔹 Image
       if (productForm.image) {
         formData.append("image", productForm.image);
       }
-      console.log("182",formData)
   
-      const response = await fetch("https://zauvijek-industry-mart.onrender.com/seller/products", {
+      // 🔹 Features (array → JSON string)
+      if (productForm.features?.length > 0) {
+        formData.append("features", JSON.stringify(productForm.features));
+      }
+  
+      // 🔹 Specifications (object → JSON string)
+      if (productForm.specifications) {
+        formData.append("specifications", JSON.stringify(productForm.specifications));
+      }
+  
+      const response = await fetch("http://localhost:4000/seller/products", {
         method: "POST",
         headers: {
-          Authorization: token, // 🔹 sirf auth bhejna hai, Content-Type nahi
+          Authorization: token, // ✅ only auth header
         },
         body: formData,
       });
@@ -199,19 +366,30 @@ const SellerDashboard = () => {
           duration: 3000,
           isClosable: true,
         });
+  
         fetchProducts();
         onClose();
   
+        // Reset form
         setProductForm({
-          name: '',
-          description: '',
-          price: '',
-          stock: '',
-          category: '',
-          brand: '',
+          name: "",
+          description: "",
+          price: "",
+          stock: "",
+          category: "",
+          brand: "",
+          features: [],
+          specifications: {
+            product: "",
+            specification: "",
+            size: "",
+            packing: "",
+            origin: "",
+          },
           minOrderQuantity: 1,
           maxOrderQuantity: 1000,
-          image: null
+          image: null,
+          condition: "", // ✅ reset condition
         });
       } else {
         throw new Error(data.message);
@@ -227,10 +405,11 @@ const SellerDashboard = () => {
     }
   };
   
+  
 
   const handleUpdateOrderStatus = async (orderId, status) => {
     try {
-      const response = await fetch(`https://zauvijek-industry-mart.onrender.com/seller/orders/${orderId}/status`, {
+      const response = await fetch(`http://localhost:4000/seller/orders/${orderId}/status`, {
         method: 'PUT',
         headers: {
           'Authorization': token,
@@ -262,6 +441,41 @@ const SellerDashboard = () => {
       });
     }
   };
+
+  // ✅ Delete product function
+// ✅ Delete product function with toast
+const handleDelete = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this product?")) return;
+
+  try {
+    await axios.delete(`http://localhost:4000/seller/products/${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+
+    // ✅ Update state after delete
+    setProducts((prev) => prev.filter((product) => product._id !== id));
+
+    // ✅ Show success toast
+    toast({
+      title: "Product deleted",
+      description: "The product has been removed successfully.",
+      status: "success",
+      duration: 3000,
+      isClosable: true,
+    });
+  } catch (err) {
+    console.error("Error deleting product", err);
+
+    // ❌ Show error toast
+    toast({
+      title: "Error",
+      description: "Failed to delete product",
+      status: "error",
+      duration: 3000,
+      isClosable: true,
+    });
+  }
+};
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -401,9 +615,13 @@ const SellerDashboard = () => {
                           <Button size="sm" mr={2}>
                             <EditIcon />
                           </Button>
-                          <Button size="sm" colorScheme="red">
-                            <DeleteIcon />
-                          </Button>
+                          <Button
+                  size="sm"
+                  colorScheme="red"
+                  onClick={() => handleDelete(product._id)}
+                >
+                  <DeleteIcon />
+                </Button>
                         </Td>
                       </Tr>
                     ))}
@@ -495,7 +713,7 @@ const SellerDashboard = () => {
 <option value="books">Books</option>
 <option value="automotive">Automotive</option>
 <option value="machinery">Machinery & Manufacturing</option>
-<option value="construction">Construction & Infrastructure</option>
+<option value="steel">Steel Scrap</option>
 <option value="agriculture">Agriculture & Heavy Equipment</option>
 <option value="aerospace">Aerospace</option>
 <option value="defense">Defense</option>
@@ -558,6 +776,88 @@ const SellerDashboard = () => {
                     rows={4}
                   />
                 </FormControl>
+                <FormControl mt={4}>
+  <FormLabel>Features</FormLabel>
+  <Textarea
+    placeholder="Enter features separated by commas (e.g., Flammable, Insoluble in water)"
+    value={productForm.features}
+    onChange={(e) =>
+      setProductForm({ ...productForm, features: e.target.value })
+    }
+    rows={3}
+  />
+</FormControl>
+
+<FormControl mt={4}>
+  <FormLabel>Specifications</FormLabel>
+  <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+    <Input
+      placeholder="Product"
+      value={productForm.specifications?.product || ""}
+      onChange={(e) =>
+        setProductForm({
+          ...productForm,
+          specifications: { ...productForm.specifications, product: e.target.value },
+        })
+      }
+    />
+    <Input
+      placeholder="Specification"
+      value={productForm.specifications?.specification || ""}
+      onChange={(e) =>
+        setProductForm({
+          ...productForm,
+          specifications: { ...productForm.specifications, specification: e.target.value },
+        })
+      }
+    />
+    <Input
+      placeholder="Size"
+      value={productForm.specifications?.size || ""}
+      onChange={(e) =>
+        setProductForm({
+          ...productForm,
+          specifications: { ...productForm.specifications, size: e.target.value },
+        })
+      }
+    />
+    <Input
+      placeholder="Packing"
+      value={productForm.specifications?.packing || ""}
+      onChange={(e) =>
+        setProductForm({
+          ...productForm,
+          specifications: { ...productForm.specifications, packing: e.target.value },
+        })
+      }
+    />
+    <Input
+      placeholder="Origin"
+      value={productForm.specifications?.origin || ""}
+      onChange={(e) =>
+        setProductForm({
+          ...productForm,
+          specifications: { ...productForm.specifications, origin: e.target.value },
+        })
+      }
+    />
+  </Grid>
+</FormControl>
+<FormControl isRequired>
+  <FormLabel>Condition</FormLabel>
+  <Select
+    value={productForm.condition}
+    onChange={(e) =>
+      setProductForm({ ...productForm, condition: e.target.value })
+    }
+  >
+    <option value="">Select Condition</option>
+    <option value="New">New</option>
+    <option value="Refurbished">Refurbished</option>
+    <option value="Resale">Resale</option>
+  </Select>
+</FormControl>
+
                 <FormControl mt={4} isRequired>
   <FormLabel>Product Image</FormLabel>
   <Input

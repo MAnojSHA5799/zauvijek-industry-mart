@@ -46,7 +46,7 @@ const AuctionForm = () => {
 
   useEffect(() => {
     if (id) {
-      fetch(`https://zauvijek-industry-mart.onrender.com/api/auctions/${id}`)
+      fetch(`http://localhost:4000/api/auctions/${id}`)
         .then((res) => res.json())
         .then((data) => {
           setFormData({
@@ -109,12 +109,12 @@ const AuctionForm = () => {
 
         let res;
         if (id) {
-          res = await fetch(`https://zauvijek-industry-mart.onrender.com/api/auctions/${id}`, {
+          res = await fetch(`http://localhost:4000/api/auctions/${id}`, {
             method: "PUT",
             body: form,
           });
         } else {
-          res = await fetch("https://zauvijek-industry-mart.onrender.com/api/auctions", {
+          res = await fetch("http://localhost:4000/api/auctions", {
             method: "POST",
             body: form,
           });

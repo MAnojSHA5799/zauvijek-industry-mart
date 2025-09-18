@@ -15,6 +15,8 @@ import {
     useToast,
     OrderedList,
   } from "@chakra-ui/react";
+  import Navbar from "./Navbar";
+  import Footer from "./Footer";
 
 import {ToastContainer,toast} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

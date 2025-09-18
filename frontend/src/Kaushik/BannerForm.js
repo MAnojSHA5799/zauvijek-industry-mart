@@ -46,7 +46,7 @@ const BannerForm = () => {
 
     try {
       const res = await axios.post(
-        "https://zauvijek-industry-mart.onrender.com/api/banner",
+        "http://localhost:4000/api/banner",
         formDataToSend
       );
       toast({

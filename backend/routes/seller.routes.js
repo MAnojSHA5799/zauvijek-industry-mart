@@ -82,11 +82,108 @@ router.get("/dashboard", authorization, sellerOnly, async (req, res) => {
 // });
 
 // ➕ Add new product
+// router.post(
+//     "/products",
+//     authorization,
+//     sellerOnly,
+//     upload.single("image"), // yahan "image" frontend se match karega
+//     async (req, res) => {
+//       try {
+//         const {
+//           name,
+//           description,
+//           price,
+//           stock,
+//           category,
+//           brand,
+//           specifications,
+//           minOrderQuantity,
+//           maxOrderQuantity,
+//         } = req.body;
+  
+//         // Agar file mila hai to path set karo
+//         const imagePath = req.file ? `/uploads/products/${req.file.filename}` : null;
+  
+//         const product = new ProductModel({
+//           name,
+//           description,
+//           price,
+//           images: imagePath ? [imagePath] : [],
+//           stock,
+//           category,
+//           sellerId: req.userId,
+//           brand,
+//           specifications: specifications || {},
+//           minOrderQuantity: minOrderQuantity || 1,
+//           maxOrderQuantity: maxOrderQuantity || 1000,
+//         });
+  
+//         await product.save();
+//         res.send({ message: "Product added successfully", product });
+//       } catch (error) {
+//         res.status(500).send({ message: "Error adding product", error: error.message });
+//       }
+//     }
+//   );
+
+// router.post(
+//     "/products",
+//     authorization,
+//     sellerOnly,
+//     upload.single("image"), 
+//     async (req, res) => {
+//       try {
+//         const {
+//           name,
+//           description,
+//           price,
+//           stock,
+//           category,
+//           brand,
+//           features,
+//           specifications,
+//           minOrderQuantity,
+//           maxOrderQuantity,
+//         } = req.body;
+  
+//         const imagePath = req.file ? `/uploads/products/${req.file.filename}` : null;
+  
+//         const product = new ProductModel({
+//           name,
+//           description,
+//           price,
+//           images: imagePath ? [imagePath] : [],
+//           stock,
+//           category,
+//           sellerId: req.userId,
+//           brand,
+  
+//           // ✅ handle features (convert CSV string to array if needed)
+//           features: Array.isArray(features) ? features : features ? features.split(",") : [],
+  
+//           // ✅ structured specifications
+//           specifications: specifications
+//             ? JSON.parse(specifications) // frontend will send JSON string
+//             : {},
+  
+//           minOrderQuantity: minOrderQuantity || 1,
+//           maxOrderQuantity: maxOrderQuantity || 1000,
+//         });
+  
+//         await product.save();
+//         res.send({ message: "Product added successfully", product });
+//       } catch (error) {
+//         res.status(500).send({ message: "Error adding product", error: error.message });
+//       }
+//     }
+//   );
+
+
 router.post(
     "/products",
     authorization,
     sellerOnly,
-    upload.single("image"), // yahan "image" frontend se match karega
+    upload.single("image"), 
     async (req, res) => {
       try {
         const {
@@ -96,12 +193,13 @@ router.post(
           stock,
           category,
           brand,
+          features,
           specifications,
           minOrderQuantity,
           maxOrderQuantity,
+          condition, // ✅ new field
         } = req.body;
   
-        // Agar file mila hai to path set karo
         const imagePath = req.file ? `/uploads/products/${req.file.filename}` : null;
   
         const product = new ProductModel({
@@ -113,9 +211,19 @@ router.post(
           category,
           sellerId: req.userId,
           brand,
-          specifications: specifications || {},
+  
+          // ✅ handle features (convert CSV string to array if needed)
+          features: Array.isArray(features) ? features : features ? features.split(",") : [],
+  
+          // ✅ structured specifications
+          specifications: specifications
+            ? JSON.parse(specifications) // frontend will send JSON string
+            : {},
+  
           minOrderQuantity: minOrderQuantity || 1,
           maxOrderQuantity: maxOrderQuantity || 1000,
+  
+          condition: condition || "New", // ✅ set default if not provided
         });
   
         await product.save();
@@ -125,6 +233,8 @@ router.post(
       }
     }
   );
+  
+  
   
 
 // Get seller's products
@@ -180,22 +290,25 @@ router.put("/products/:id", authorization, sellerOnly, async (req, res) => {
 });
 
 // Delete product
-router.delete("/products/:id", authorization, sellerOnly, async (req, res) => {
+router.delete("/seller/products/:id", authorization, sellerOnly, async (req, res) => {
     try {
-        const productId = req.params.id;
-        const sellerId = req.userId;
-        
-        const product = await ProductModel.findOne({ _id: productId, sellerId });
-        if (!product) {
-            return res.status(404).send({ message: "Product not found" });
-        }
-        
-        await ProductModel.findByIdAndDelete(productId);
-        res.send({ message: "Product deleted successfully" });
+        console.log(req.body)
+      const productId = req.params.id;
+      const sellerId = req.userId; // token se aana chahiye
+  
+      const product = await ProductModel.findOne({ _id: productId, sellerId });
+      if (!product) {
+        return res.status(404).send({ message: "Product not found" });
+      }
+  
+      await ProductModel.findByIdAndDelete(productId);
+      res.send({ message: "Product deleted successfully" });
     } catch (error) {
-        res.status(500).send({ message: "Error deleting product", error: error.message });
+      res.status(500).send({ message: "Error deleting product", error: error.message });
     }
-});
+  });
+  
+  
 
 // Get seller's orders
 router.get("/orders", authorization, sellerOnly, async (req, res) => {

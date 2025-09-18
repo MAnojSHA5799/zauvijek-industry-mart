@@ -65,7 +65,7 @@ const adminRouter = require("./routes/admin.routes");
 const buyerRouter = require("./routes/buyer.routes");
 const bannerRoutes = require("./routes/bannerRoutes.js");
 const auctionRoutes = require("./routes/auctions"); // ✅ Auction routes
-
+const eventsUpdatesRouter = require("./routes/eventsUpdates");
 // Middleware
 const { authorization } = require("./middleware/auth.middleware");
 
@@ -93,9 +93,10 @@ app.use("/admin", authorization, adminRouter);
 app.use("/product", productRouter);
 app.use("/address", authorization, addressRouter);
 app.use("/cart", authorization, cartRouter);
+app.use("/api/events", eventsUpdatesRouter);
 
 // ---------------- Server start ----------------
-const port = process.env.port || 5000;
+const port = process.env.port || 4000;
 
 app.listen(port, async () => {
   try {

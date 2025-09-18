@@ -37,8 +37,9 @@ const Navbar = () => {
         alignItems={"center"}
         zIndex={5}
         backgroundColor="#606FC4"
+        mb={40}
       >
-        <Flex h={14} alignItems={"center"} justifyContent={"space-between"}>
+        <Flex  h={14} alignItems={"center"} justifyContent={"space-between"}>
           <HStack spacing={{ base: 3, md: 8 }} alignItems={"center"}>
             <Link to="/">
               <Box

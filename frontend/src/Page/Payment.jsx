@@ -7,6 +7,8 @@ import Address from './Address'
 import Snavbar from '../component/akhilesh/Shopping/Snavbar'
 import Footer from '../Kaushik/Footer'
 
+import Navbar from "../Kaushik/Navbar";
+// import Footer from "./Footer";
 
 
 
@@ -18,18 +20,28 @@ export const Payment = () => {
  
   return (
     <>
-   <Snavbar/>
-    <Stack w="90%" m="auto" direction={{base:"column-reverse",md:"row"}} gap={{base:"5",md:'0'}} justifyContent="center" alignItems="center">
-    <Box w={{base:"100%"}} m="auto" >
-    <PaymentTab/>
-    </Box>
-   <Box>
-   <Address/>
-   </Box>
+    <Navbar /> {/* mt as number (10px) */}
     
-    
+    <Stack
+      w="90%"
+      m="auto"
+      mt={20}
+      direction={{ base: "column-reverse", md: "row" }}
+      gap={{ base: 5, md: 0 }}
+      justifyContent="center"
+      alignItems="center"
+    >
+      <Box w={{ base: "100%" }} m="auto" >
+        <PaymentTab />
+      </Box>
+  
+      <Box w={{ base: "100%" }} m="auto" >
+        <Address />
+      </Box>
     </Stack>
-    <Footer/>
-    </>
+  
+    <Footer />
+  </>
+  
   )
 }
