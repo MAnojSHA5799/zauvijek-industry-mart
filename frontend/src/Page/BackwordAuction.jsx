@@ -294,7 +294,7 @@ function BackwardAuction() {
         maxW="1200px"
         mx="auto"
       >
-        <Box flex="2">
+        <Box flex="1">
           <IndustryNews />
         </Box>
         <Box flex="1">

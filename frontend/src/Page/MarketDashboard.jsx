@@ -1,165 +1,133 @@
-import React, { useEffect, useState } from "react";
-import { Line } from "react-chartjs-2";
-import axios from "axios";
+import React from "react";
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
+  ComposedChart,
+  Line,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
   Tooltip,
   Legend,
-} from "chart.js";
+  ResponsiveContainer,
+  LabelList
+} from "recharts";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
-
-const products = [
-  "CR Coil",
-  "MS Loose Bundle",
-  "MS Side Trim",
-  "MS Packing Strip Scrap",
+const data = [
+  { metal: "Platinum", price: 4800, surcharge: 6 },
+  { metal: "Copper", price: 720, surcharge: 3 },
+  { metal: "Aluminum", price: 267, surcharge: 2 },
+  { metal: "Zinc", price: 307, surcharge: 2 },
+  { metal: "Lead", price: 118, surcharge: 1 },
+  { metal: "Brass", price: 480, surcharge: 2 },
+  { metal: "Gun Metal", price: 691, surcharge: 2 },
+  { metal: "Stainless Steel", price: 42.75, surcharge: 1 },
 ];
 
-const MarketDashboard = () => {
-  const [marketData, setMarketData] = useState({});
-  const [auctionData, setAuctionData] = useState({});
+const metalUsage = [
+  "Auto catalytic converters, industrial equipment",
+  "Electric wires, motors, pipelines",
+  "Utensils, wires, sheets",
+  "Batteries, coatings, construction materials",
+  "Battery scrap, recycling",
+  "Plumbing fittings, hardware",
+  "Machine parts, industrial use",
+  "Sink, pipes, plates, sheets",
+];
 
-  useEffect(() => {
-    // 🔹 Sample Market Data (replace with API)
-    const data = {};
-    products.forEach((p) => {
-      data[p] = Array.from({ length: 10 }, () =>
-        25000 + Math.floor(Math.random() * 15000)
-      );
-    });
-    setMarketData(data);
-
-    // 🔹 Sample Auction H1/L1 Data
-    const auction = {};
-    products.forEach((p) => {
-      auction[p] = {
-        H1: Array.from({ length: 10 }, () =>
-          26000 + Math.floor(Math.random() * 14000)
-        ),
-        L1: Array.from({ length: 10 }, () =>
-          24000 + Math.floor(Math.random() * 12000)
-        ),
-      };
-    });
-    setAuctionData(auction);
-  }, []);
-
-  const colors = [
-    { market: "#606FC4", h1: "#3f51b5", l1: "#90a4ff" },
-    { market: "#606FC4", h1: "#ff7043", l1: "#64b5f6" },
-  ];
-  
-
+export default function MetalPricingTrendsCard() {
   return (
-    <div style={{ padding: "20px" }}>
-      <h2 style={{ textAlign: "center", marginBottom: "30px",fontSize:"25px", fontWeight:"500", color: "#606FC4" }}>
-        Market Trends Dashboard
+    <div
+      style={{
+        background: "#fff",
+        borderRadius: "16px",
+        padding: "20px",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.08)",
+        border: "1px solid #e0e0e0",
+      }}
+    >
+      <h2 style={{ marginBottom: "20px", color: "#2f74c0" }}>
+        Metal Price vs Surcharge Trends
       </h2>
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "20px",
-          justifyContent: "center",
-        }}
-      >
-        {products.map((product, index) => (
-            <div
-  key={product}
-  style={{
-    flex: "1 1 45%",
-    minWidth: "300px",
-    background: "#d7dbf7", // light shade of #606FC4
-    padding: "15px",
-    borderRadius: "12px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-    border: "1px solidrgb(159, 164, 195)", // subtle border for primary color feel
-  }}
->
 
-            <h3 style={{ textAlign: "center", marginBottom: "10px", fontSize:"25px", fontWeight:"500", color: "#606FC4"}}>
-              {product}
-            </h3>
-            <Line
-              data={{
-                labels: Array.from({ length: 10 }, (_, i) => `Day ${i + 1}`),
-                datasets: [
-                  {
-                    label: "Market Price",
-                    data: marketData[product] || [],
-                    borderColor: colors[index % 2].market,
-                    backgroundColor: colors[index % 2].market + "33",
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 5,
-                    pointHoverRadius: 8,
-                  },
-                  {
-                    label: "H1 Bid",
-                    data: auctionData[product]?.H1 || [],
-                    borderColor: colors[index % 2].h1,
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 5,
-                    pointHoverRadius: 8,
-                  },
-                  {
-                    label: "L1 Bid",
-                    data: auctionData[product]?.L1 || [],
-                    borderColor: colors[index % 2].l1,
-                    fill: false,
-                    tension: 0.4,
-                    pointRadius: 5,
-                    pointHoverRadius: 8,
-                  },
-                ],
-              }}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { position: "top" },
-                  tooltip: {
-                    mode: "index",
-                    intersect: false,
-                    callbacks: {
-                      label: function (context) {
-                        return `${context.dataset.label}: ₹${context.raw}`;
-                      },
-                    },
-                  },
-                },
-                interaction: { mode: "nearest", axis: "x", intersect: false },
-                scales: {
-                  y: {
-                    beginAtZero: false,
-                    ticks: { stepSize: 5000 },
-                    title: { display: true, text: "Price (₹)" },
-                  },
-                  x: {
-                    title: { display: true, text: "Days" },
-                  },
-                },
-              }}
-            />
-          </div>
-        ))}
+      <div style={{ display: "flex", gap: "40px" }}>
+        {/* Chart Section */}
+        <div style={{ flex: 2, height: 400 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="metal" angle={-40} textAnchor="end" height={70} />
+              <YAxis yAxisId="left" orientation="left" domain={[0, 10]} unit="%" />
+              <YAxis yAxisId="right" orientation="right" unit="₹" />
+
+              <Tooltip 
+                formatter={(value, name) => 
+                  name === "Surcharge (%)" ? `${value}%` : `₹${value.toLocaleString()}`
+                } 
+              />
+              <Legend />
+
+              <Bar
+                yAxisId="left"
+                dataKey="surcharge"
+                fill="#2f74c0"
+                name="Surcharge (%)"
+                radius={[1,1, 0, 0]}
+              />
+
+              <Line
+                yAxisId="right"
+                type="monotone"
+                dataKey="price"
+                stroke="#ff7300"
+                strokeWidth={3}
+                name="Metal Price (₹/kg)"
+                dot={{ r: 4 }}
+              >
+                <LabelList
+                  dataKey="price"
+                  position="top"
+                  formatter={(val) => `₹${val.toLocaleString()}`}
+                />
+              </Line>
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Table Section */}
+        <div style={{ flex: 1, overflowY: "auto", maxHeight: 400 }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              textAlign: "center",
+              border: "2px solid #2f74c0",
+              borderRadius: "8px",
+              overflow: "hidden",
+            }}
+          >
+            <thead>
+              <tr style={{ background: "#f4f6f9", color: "#333" }}>
+                <th style={{ padding: "10px", borderBottom: "2px solid #ddd" }}>Metal</th>
+                <th style={{ padding: "10px", borderBottom: "2px solid #ddd" }}>Surcharge (%)</th>
+                <th style={{ padding: "10px", borderBottom: "2px solid #ddd" }}>Price (₹/kg)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((row, idx) => (
+                <tr key={idx} style={{ borderBottom: "1px solid #ddd" }}>
+                  <td style={{ padding: "8px", fontWeight: "bold" }}>{row.metal}</td>
+                  <td style={{ padding: "8px", color: "#2f74c0", fontWeight: "bold" }}>
+                    {row.surcharge}%
+                  </td>
+                  <td style={{ padding: "8px", color: "#ff7300", fontWeight: "bold" }}>
+                    ₹{row.price.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
-};
-
-export default MarketDashboard;
+}

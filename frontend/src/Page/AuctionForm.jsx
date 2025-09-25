@@ -18,7 +18,11 @@ import Footer from "../Kaushik/Footer";
 
 const AuctionForm = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); 
+  const { id } = useParams();
+
+  // Get logged-in user details from localStorage
+  const user = JSON.parse(localStorage.getItem("userDetails"));
+  console.log("Logged-in User:", user);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -88,50 +92,59 @@ const AuctionForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validate()) {
-      try {
-        const form = new FormData();
-        Object.keys(formData).forEach((key) => {
-          if (key === "photos" || key === "materialCertificate") {
-            if (formData[key]) {
-              if (key === "photos") {
-                Array.from(formData.photos).forEach((file) =>
-                  form.append("photos", file)
-                );
-              } else {
-                form.append(key, formData[key][0]);
-              }
+
+    if (!user) {
+      alert("Please login first!");
+      return;
+    }
+
+    if (!validate()) return;
+
+    try {
+      const form = new FormData();
+
+      // Send user ID in form data
+      form.append("userId", user.id);
+      console.log("User ID sent in form:", user.id);
+      Object.keys(formData).forEach((key) => {
+        if (key === "photos" || key === "materialCertificate") {
+          if (formData[key]) {
+            if (key === "photos") {
+              Array.from(formData.photos).forEach((file) => form.append("photos", file));
+            } else {
+              form.append(key, formData[key][0]);
             }
-          } else {
-            form.append(key, formData[key]);
           }
+        } else {
+          form.append(key, formData[key]);
+        }
+      });
+
+      let res;
+      console.log(form)
+      if (id) {
+        res = await fetch(`https://zauvijek-industry-mart.onrender.com/api/auctions/${id}`, {
+          method: "PUT",
+          body: form,
         });
-
-        let res;
-        if (id) {
-          res = await fetch(`https://zauvijek-industry-mart.onrender.com/api/auctions/${id}`, {
-            method: "PUT",
-            body: form,
-          });
-        } else {
-          res = await fetch("https://zauvijek-industry-mart.onrender.com/api/auctions", {
-            method: "POST",
-            body: form,
-          });
-        }
-
-        const data = await res.json();
-
-        if (res.ok) {
-          alert(id ? "Auction updated successfully!" : "Auction created successfully!");
-          navigate("/auction/list");
-        } else {
-          alert("Error: " + data.message);
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Server error. Check console.");
+      } else {
+        res = await fetch("https://zauvijek-industry-mart.onrender.com/api/auctions", {
+          method: "POST",
+          body: form,
+        });
       }
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(id ? "Auction updated successfully!" : "Auction created successfully!");
+        navigate("/auction/list");
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error. Check console.");
     }
   };
 

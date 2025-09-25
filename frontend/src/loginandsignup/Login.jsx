@@ -54,7 +54,7 @@ export default function Login() {
     if (res.token) {
       localStorage.setItem("token", JSON.stringify(res.token));
       localStorage.setItem("userDetails", JSON.stringify(res.userDetails));
-
+    
       toast({
         title: res.message,
         description: `Welcome ${res.userDetails.name}! Role: ${res.userDetails.role}`,
@@ -62,10 +62,9 @@ export default function Login() {
         duration: 3000,
         isClosable: true,
       });
-
-      if (res.userDetails.role === "admin") navigate("/admin/dashboard");
-      else if (res.userDetails.role === "seller") navigate("/seller/dashboard");
-      else navigate("/");
+    
+      // ✅ Always go to home page after login
+      navigate("/");
     } else {
       toast({
         title: "Login Failed",

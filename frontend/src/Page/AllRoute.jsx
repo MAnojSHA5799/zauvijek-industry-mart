@@ -29,7 +29,8 @@ import BackworddAuction from './BackwordAuction'
 import AuctionHome from "./AuctionHome";
 import AuctionList from "./AuctionList";
 import AuctionForm from "./AuctionForm";
-
+import PricePlans from './PricePlans'
+import NotificationDetail from "./NotificationDetail";
  
 const AllRoute = () => {
   return (
@@ -46,6 +47,7 @@ const AllRoute = () => {
   <Route path="/career" element={<Careers/>}/>
   <Route path="/banner-form" element={<BannerForm/>}/>
   <Route path="/banner-display" element={<BannerDisplay/>}/>
+  <Route path= "/price-plan" element={<PricePlans />} />
   
   {/* B2B Marketplace Routes */}
   <Route path="/marketplace" element={<B2BMarketplace/>}/>
@@ -56,7 +58,7 @@ const AllRoute = () => {
         <Route path="/auction/edit/:id" element={<AuctionForm />} />
   <Route path="/forword-auction" element={<ForwordAuction />} />
 <Route path="/backword-auction" element={<BackworddAuction />} />
-
+<Route path="/notifications/:id" element={<NotificationDetail />} />
 
   <Route path="/admin/dashboard" element={<PrivateRoute><AdminDashboard/></PrivateRoute>}/>
   

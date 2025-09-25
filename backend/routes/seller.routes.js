@@ -3,9 +3,13 @@ const { authorization, sellerOnly } = require("../middleware/auth.middleware");
 const ProductModel = require("../models/product.model");
 const OrderModel = require("../models/order.model");
 const { UserModel } = require("../models/User.model");
+const NotificationModel = require("../models/notification.model");
 const multer = require("multer");
 const router = express.Router();
 const path = require("path"); // ✅ add this line
+const Razorpay = require("razorpay");
+const Notification = require("../models/notification.model");
+// const { authorization } = require("../middleware/auth.middleware");
 // 🖼 Multer setup
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -191,13 +195,14 @@ router.post(
           description,
           price,
           stock,
+          unit,          // ✅ new field
           category,
           brand,
           features,
           specifications,
           minOrderQuantity,
           maxOrderQuantity,
-          condition, // ✅ new field
+          condition, // ✅ existing field
         } = req.body;
   
         const imagePath = req.file ? `/uploads/products/${req.file.filename}` : null;
@@ -208,6 +213,7 @@ router.post(
           price,
           images: imagePath ? [imagePath] : [],
           stock,
+          unit,          // ✅ save unit
           category,
           sellerId: req.userId,
           brand,
@@ -217,13 +223,13 @@ router.post(
   
           // ✅ structured specifications
           specifications: specifications
-            ? JSON.parse(specifications) // frontend will send JSON string
+            ? JSON.parse(specifications) // frontend sends JSON string
             : {},
   
           minOrderQuantity: minOrderQuantity || 1,
           maxOrderQuantity: maxOrderQuantity || 1000,
   
-          condition: condition || "New", // ✅ set default if not provided
+          condition: condition || "New", // ✅ default condition
         });
   
         await product.save();
@@ -233,6 +239,7 @@ router.post(
       }
     }
   );
+  
   
   
   
@@ -365,5 +372,95 @@ router.put("/orders/:id/status", authorization, sellerOnly, async (req, res) => 
         res.status(500).send({ message: "Error updating order status", error: error.message });
     }
 });
+
+
+// Seller notifications route
+// GET seller notifications
+router.get("/notifications", authorization, async (req, res) => {
+  try {
+    const sellerId = req.user.id; // ✅ matches middleware // matches the payload key in JWT
+    console.log("Fetching notifications for seller:", sellerId);
+
+    const notifications = await NotificationModel.find({ userId: sellerId })
+      .sort({ createdAt: -1 });
+
+    res.json(notifications);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching notifications", error: error.message });
+  }
+});
+
+// seller.routes.js (or notification.routes.js)
+router.get("/notifications/:id", authorization, async (req, res) => {
+  try {
+    const notif = await NotificationModel.findById(req.params.id);
+    if (!notif) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+    res.json(notif);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching notification detail", error: error.message });
+  }
+});
+
+
+
+
+const razorpayInstance = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+// ✅ Create Razorpay Order for 2% payment
+router.post("/pay-2percent/:notificationId", authorization, async (req, res) => {
+  try {
+    const notificationId = req.params.notificationId;
+    const notification = await Notification.findById(notificationId);
+    if (!notification) return res.status(404).json({ message: "Notification not found" });
+
+    if (notification.productDetails.pricePaidPercent >= 2) {
+      return res.status(400).json({ message: "Payment already completed" });
+    }
+
+    const amount = Math.round(notification.productDetails.price * 0.02 * 100); // 2% in paise
+
+    const order = await razorpayInstance.orders.create({
+      amount,
+      currency: "INR",
+      receipt: `receipt_${notificationId}`,
+    });
+
+    res.json({ order });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error creating Razorpay order", error: error.message });
+  }
+});
+
+// ✅ Confirm Payment
+router.post("/confirm-payment/:notificationId", authorization, async (req, res) => {
+  try {
+    const { razorpayPaymentId } = req.body;
+    const notificationId = req.params.notificationId;
+
+    const notification = await Notification.findById(notificationId);
+    if (!notification) return res.status(404).json({ message: "Notification not found" });
+
+    notification.productDetails.pricePaidPercent = 2;
+    notification.productDetails.razorpayPaymentId = razorpayPaymentId;
+    await notification.save();
+
+    res.json({ message: "Payment confirmed", notification });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error confirming payment", error: error.message });
+  }
+});
+
+module.exports = router;
+
+
+
 
 module.exports = router;

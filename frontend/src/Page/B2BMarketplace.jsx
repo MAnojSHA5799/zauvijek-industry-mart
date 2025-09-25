@@ -2,10 +2,8 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Grid,
-  GridItem,
   Card,
   CardBody,
-  CardHeader,
   CardFooter,
   Heading,
   Text,
@@ -26,8 +24,6 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  FormControl,
-  FormLabel,
   NumberInput,
   NumberInputField,
   NumberInputStepper,
@@ -48,7 +44,7 @@ import {
   TableContainer,
   Divider,
 } from "@chakra-ui/react";
-import { SearchIcon, StarIcon, AddIcon } from "@chakra-ui/icons";
+import { SearchIcon } from "@chakra-ui/icons";
 import Navbar from "../Kaushik/Navbar";
 import Footer from "../Kaushik/Footer";
 
@@ -63,23 +59,27 @@ const B2BMarketplace = () => {
   const [maxPrice, setMaxPrice] = useState("");
   const [cart, setCart] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const {
     isOpen: isOrderOpen,
     onOpen: onOrderOpen,
     onClose: onOrderClose,
   } = useDisclosure();
-  const toast = useToast();
+  const {
+    isOpen: isProductOpen,
+    onOpen: onProductOpen,
+    onClose: onProductClose,
+  } = useDisclosure();
 
+  const toast = useToast();
   const token = JSON.parse(localStorage.getItem("token"));
   const userDetails = JSON.parse(localStorage.getItem("userDetails"));
 
   useEffect(() => {
     fetchProducts();
     fetchCategories();
-    if (token) {
-      fetchOrders();
-    }
+    if (token) fetchOrders();
   }, []);
 
   const fetchProducts = async () => {
@@ -94,7 +94,7 @@ const B2BMarketplace = () => {
         `https://zauvijek-industry-mart.onrender.com/buyer/products?${params}`
       );
       const data = await response.json();
-      console.log("92", data.products);
+      console.log(data.products)
       setProducts(data.products || []);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -116,10 +116,7 @@ const B2BMarketplace = () => {
   const fetchOrders = async () => {
     try {
       const response = await fetch("https://zauvijek-industry-mart.onrender.com/buyer/orders", {
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: token, "Content-Type": "application/json" },
       });
       const data = await response.json();
       setOrders(data.orders || []);
@@ -128,16 +125,16 @@ const B2BMarketplace = () => {
     }
   };
 
-  const handleSearch = () => {
-    fetchProducts();
-  };
+  const handleSearch = () => fetchProducts();
 
-  const addToCart = (product) => {
-    const existingItem = cart.find((item) => item.productId === product._id);
+  const confirmAddToCart = () => {
+    if (!selectedProduct) return;
+
+    const existingItem = cart.find((item) => item.productId === selectedProduct._id);
     if (existingItem) {
       setCart(
         cart.map((item) =>
-          item.productId === product._id
+          item.productId === selectedProduct._id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
@@ -146,38 +143,37 @@ const B2BMarketplace = () => {
       setCart([
         ...cart,
         {
-          productId: product._id,
-          name: product.name,
-          price: product.price,
+          productId: selectedProduct._id,
+          name: selectedProduct.name,
+          price: selectedProduct.price,
           quantity: 1,
-          sellerId: product.sellerId._id,
-          sellerName: product.sellerId.name,
+          sellerId: selectedProduct.sellerId._id,
+          sellerName: selectedProduct.sellerId.name,
         },
       ]);
     }
+
     toast({
       title: "Added to Cart",
-      description: `${product.name} has been added to your cart`,
+      description: `${selectedProduct.name} has been added to your cart`,
       status: "success",
       duration: 2000,
       isClosable: true,
     });
+    onProductClose();
   };
 
-  const removeFromCart = (productId) => {
+  const removeFromCart = (productId) =>
     setCart(cart.filter((item) => item.productId !== productId));
-  };
 
   const updateCartQuantity = (productId, quantity) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-    } else {
+    if (quantity <= 0) removeFromCart(productId);
+    else
       setCart(
         cart.map((item) =>
           item.productId === productId ? { ...item, quantity } : item
         )
       );
-    }
   };
 
   const placeOrder = async () => {
@@ -191,7 +187,6 @@ const B2BMarketplace = () => {
       });
       return;
     }
-
     if (cart.length === 0) {
       toast({
         title: "Empty Cart",
@@ -206,10 +201,7 @@ const B2BMarketplace = () => {
     try {
       const response = await fetch("https://zauvijek-industry-mart.onrender.com/buyer/orders", {
         method: "POST",
-        headers: {
-          Authorization: token,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: token, "Content-Type": "application/json" },
         body: JSON.stringify({
           products: cart,
           shippingAddress: {
@@ -228,7 +220,7 @@ const B2BMarketplace = () => {
       if (response.ok) {
         toast({
           title: "Order Placed",
-          description: `Your order has been placed successfully. ${data.totalOrders} order(s) created.`,
+          description: `Your order has been placed successfully.`,
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -236,9 +228,7 @@ const B2BMarketplace = () => {
         setCart([]);
         onOrderClose();
         fetchOrders();
-      } else {
-        throw new Error(data.message);
-      }
+      } else throw new Error(data.message);
     } catch (error) {
       toast({
         title: "Order Failed",
@@ -250,23 +240,6 @@ const B2BMarketplace = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "pending":
-        return "yellow";
-      case "confirmed":
-        return "blue";
-      case "shipped":
-        return "purple";
-      case "delivered":
-        return "green";
-      case "cancelled":
-        return "red";
-      default:
-        return "gray";
-    }
-  };
-
   const totalCartAmount = cart.reduce(
     (total, item) => total + item.price * item.quantity,
     0
@@ -275,7 +248,7 @@ const B2BMarketplace = () => {
   return (
     <>
       <Navbar />
-      <Box p={8} mt={10} maxW="1200px" mx="auto">
+      <Box p={4} mt={10}>
         <Heading mb={6} color="blue.600">
           B2B Marketplace
         </Heading>
@@ -289,14 +262,10 @@ const B2BMarketplace = () => {
 
           <TabPanels>
             <TabPanel>
-              {/* Search and Filters */}
+              {/* Search & Filter */}
               <Box mb={6} p={4} bg="gray.50" borderRadius="md">
-                <Grid
-                  templateColumns="repeat(auto-fit, minmax(200px, 1fr))"
-                  gap={4}
-                  mb={4}
-                >
-                  <InputGroup>
+                <Flex gap={2} flexWrap="wrap">
+                  <InputGroup maxW="200px">
                     <InputLeftElement pointerEvents="none">
                       <SearchIcon color="gray.300" />
                     </InputLeftElement>
@@ -310,17 +279,19 @@ const B2BMarketplace = () => {
                     placeholder="All Categories"
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
+                    maxW="200px"
                   >
-                    {categories.map((category) => (
-                      <option key={category} value={category}>
-                        {category}
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
                       </option>
                     ))}
                   </Select>
                   <NumberInput
                     placeholder="Min Price"
                     value={minPrice}
-                    onChange={(value) => setMinPrice(value)}
+                    onChange={(val) => setMinPrice(val)}
+                    maxW="120px"
                   >
                     <NumberInputField />
                     <NumberInputStepper>
@@ -331,7 +302,8 @@ const B2BMarketplace = () => {
                   <NumberInput
                     placeholder="Max Price"
                     value={maxPrice}
-                    onChange={(value) => setMaxPrice(value)}
+                    onChange={(val) => setMaxPrice(val)}
+                    maxW="120px"
                   >
                     <NumberInputField />
                     <NumberInputStepper>
@@ -339,113 +311,98 @@ const B2BMarketplace = () => {
                       <NumberDecrementStepper />
                     </NumberInputStepper>
                   </NumberInput>
-                </Grid>
-                <Button colorScheme="blue" onClick={handleSearch}>
-                  Search
-                </Button>
+                  <Button colorScheme="blue" onClick={handleSearch}>
+                    Search
+                  </Button>
+                </Flex>
               </Box>
 
               {/* Products Grid */}
               <Grid templateColumns="repeat(auto-fill, minmax(250px, 1fr))" gap={6}>
-  {products.map((product) => (
-    <Card
-      key={product._id}
-      maxW="sm"
-      borderWidth="0px"
-      borderRadius="md"
-      overflow="hidden"
-      boxShadow="md"
-      _hover={{
-        boxShadow: "xl",
-        transform: "scale(1.02)",
-        transition: "0.3s",
-      }}
-    >
-      {/* Product Image with Condition Badge */}
-      <Box position="relative">
-        {product.images && product.images.length > 0 && (
-          <Image
-            src={`https://zauvijek-industry-mart.onrender.com${product.images[0]}`}
-            alt={product.name}
-            objectFit="cover"
-            w="100%"
-            h="250px"
-          />
-        )}
+                {products.map((product) => (
+                  <Card
+                    key={product._id}
+                    maxW="sm"
+                    borderRadius="md"
+                    overflow="hidden"
+                    boxShadow="md"
+                    _hover={{
+                      boxShadow: "xl",
+                      transform: "scale(1.02)",
+                      transition: "0.3s",
+                    }}
+                  >
+                    <Box position="relative">
+                      {product.images?.length > 0 && (
+                        <Image
+                          src={`https://zauvijek-industry-mart.onrender.com${product.images[0]}`}
+                          alt={product.name}
+                          objectFit="cover"
+                          w="100%"
+                          h="250px"
+                        />
+                      )}
+                      {product.condition && (
+  <Badge
+    position="absolute"
+    top="10px"
+    left="5px"
+    color="white"
+    bg={
+      product.condition === "New"
+        ? "#606FC4"
+        : product.condition === "Refurbished"
+        ? "orange.500"
+        : product.condition === "Resale"
+        ? "teal.500"
+        : "gray.500"
+    }
+  >
+    {product.condition}
+  </Badge>
+)}
 
-        {/* Condition Badge */}
-        {product.condition && (
-          <Box
-            position="absolute"
-            top="10px"
-            left="5px"
-            bg={
-              product.condition === "New"
-                ? "#606FC4"
-                          : product.condition === "Refurbished"
-                          ? "orange.500"
-                          : product.condition === "Resale"
-                          ? "blue.500"
-                          : "gray.500"
-            }
-            color="white"
-            fontSize="12px"
-            fontWeight="bold"
-            px={3}
-            py={1}
-            borderRadius="full"
-            boxShadow="0px 2px 6px rgba(0,0,0,0.3)"
-            textAlign="center"
-            // textTransform="uppercase"
-          >
-            {product.condition}
-          </Box>
-        )}
-      </Box>
+                    </Box>
 
-      <CardBody>
-        {/* Product Name */}
-        <Heading size="md" mb={1} noOfLines={2}>
-          {product.name}
-        </Heading>
+                    <CardBody>
+                      <Heading size="md" mb={1} noOfLines={2}>
+                        {product.name}
+                      </Heading>
+                      <Text fontSize="sm" color="gray.600" mb={2} noOfLines={2}>
+                        {product.description}
+                      </Text>
+                      <Text fontSize="xl" fontWeight="bold" color="green.600" mb={1}>
+                        ₹{product.price} 
+                      </Text>
+                      <Flex fontSize="sm" color="gray.500" mb={2} justify="space-between">
+                      <Text>
+  Stock: {product.stock}{product.unit ? `/${product.unit}` : ""}
+</Text>
 
-        {/* Description */}
-        <Text fontSize="sm" color="gray.600" mb={2} noOfLines={2}>
-          {product.description}
-        </Text>
+                        <Text>Min Order: {product.minOrderQuantity}</Text>
+                      </Flex>
+                      <Badge colorScheme="blue">{product.category}</Badge>
+                    </CardBody>
 
-        {/* Price */}
-        <Text fontSize="xl" fontWeight="bold" color="green.600" mb={1}>
-          ₹{product.price}
-        </Text>
-
-        {/* Stock & Min Order */}
-        <Flex fontSize="sm" color="gray.500" mb={2} justify="space-between">
-          <Text>Stock: {product.stock}</Text>
-          <Text>Min Order: {product.minOrderQuantity}</Text>
-        </Flex>
-
-        {/* Category Badge */}
-        <Badge colorScheme="blue">{product.category}</Badge>
-      </CardBody>
-
-      <CardFooter>
-        <Button
-          bg="#606FC4"
-          color="white"
-          _hover={{ bg: "#4a54a8" }}
-          size="sm"
-          w="100%"
-          onClick={() => addToCart(product)}
-          isDisabled={product.stock === 0}
-        >
-          Add to Cart
-        </Button>
-      </CardFooter>
-    </Card>
-  ))}
-</Grid>
-
+                    <CardFooter>
+                      <Button
+                        bg="#606FC4"
+                        color="white"
+                        _hover={{ bg: "#4a54a8" }}
+                        size="sm"
+                        w="100%"
+                        onClick={() => {
+                          setSelectedProduct(product);
+                          onProductOpen();
+                        }}
+                        isDisabled={product.stock === 0}
+                      >
+                        View & Add
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                ))}
+              </Grid>
             </TabPanel>
 
             <TabPanel>
@@ -473,13 +430,9 @@ const B2BMarketplace = () => {
                           <Td>{order.sellerId?.name}</Td>
                           <Td>₹{order.totalAmount}</Td>
                           <Td>
-                            <Badge colorScheme={getStatusColor(order.status)}>
-                              {order.status}
-                            </Badge>
+                            <Badge colorScheme="blue">{order.status}</Badge>
                           </Td>
-                          <Td>
-                            {new Date(order.createdAt).toLocaleDateString()}
-                          </Td>
+                          <Td>{new Date(order.createdAt).toLocaleDateString()}</Td>
                         </Tr>
                       ))}
                     </Tbody>
@@ -558,6 +511,54 @@ const B2BMarketplace = () => {
           </TabPanels>
         </Tabs>
 
+        {/* Product Detail Modal */}
+        <Modal isOpen={isProductOpen} onClose={onProductClose} size="lg">
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>{selectedProduct?.name}</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              {selectedProduct && (
+                <>
+                  {selectedProduct.images?.length > 0 && (
+                    <Image
+                      src={`https://zauvijek-industry-mart.onrender.com${selectedProduct.images[0]}`}
+                      alt={selectedProduct.name}
+                      objectFit="cover"
+                      w="100%"
+                      h="250px"
+                      mb={3}
+                      borderRadius="md"
+                    />
+                  )}
+                  <Text fontSize="md" mb={2}>
+                    {selectedProduct.description}
+                  </Text>
+                  <Text fontSize="xl" fontWeight="bold" color="green.600">
+                    ₹{selectedProduct.price}
+                    {/* Stock: {product.stock}{product.unit ? `/${product.unit}` : ""} */}
+                  </Text>
+                  <Flex justify="space-between" fontSize="sm" mt={2}>
+                    <Text>Stock: {selectedProduct.stock}</Text>
+                    <Text>Min Order: {selectedProduct.minOrderQuantity}</Text>
+                  </Flex>
+                  <Badge colorScheme="blue" mt={2}>
+                    {selectedProduct.category}
+                  </Badge>
+                </>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="ghost" mr={3} onClick={onProductClose}>
+                Cancel
+              </Button>
+              <Button colorScheme="blue" onClick={confirmAddToCart}>
+                Add to Cart
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
         {/* Place Order Modal */}
         <Modal isOpen={isOrderOpen} onClose={onOrderClose} size="lg">
           <ModalOverlay />
@@ -567,12 +568,7 @@ const B2BMarketplace = () => {
             <ModalBody>
               <Text mb={4}>Review your order:</Text>
               {cart.map((item) => (
-                <Box
-                  key={item.productId}
-                  p={2}
-                  borderBottom="1px"
-                  borderColor="gray.200"
-                >
+                <Box key={item.productId} p={2} borderBottom="1px" borderColor="gray.200">
                   <Text fontWeight="bold">{item.name}</Text>
                   <Text fontSize="sm" color="gray.600">
                     Seller: {item.sellerName} | Qty: {item.quantity} | Price: ₹

@@ -27,7 +27,18 @@ const Footer = () => {
         {/* Brand Section */}
         <Box display="flex" alignItems="center" justifyContent="center" mb={6}>
           <Text fontSize={{ base: "lg", md: "2xl" }} fontWeight="bold" color={brandColor}>
-            Zauvijek MetalX Mart
+            Zauvijek Metal
+            <Text
+    as="span"
+    color="#606FC4"
+    fontSize={{ base: "2xl", md: "2xl", lg: "3xl" }}
+    fontWeight="extrabold"
+    fontFamily="'Orbitron', sans-serif" // ✅ X ko alag futuristic style
+    // textShadow="3px 3px 4px rgba(0,0,0,0.4)"
+  >
+    X
+  </Text>{" "}
+            Mart
           </Text>
         </Box>
 

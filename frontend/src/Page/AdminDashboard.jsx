@@ -49,6 +49,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [userFilter, setUserFilter] = useState("");
   const [productFilter, setProductFilter] = useState("");
+  const [pendingPayments, setPendingPayments] = useState([]);
   const toast = useToast();
 
   const token = JSON.parse(localStorage.getItem("token"));
@@ -70,8 +71,30 @@ const AdminDashboard = () => {
     fetchUsers();
     fetchProducts();
     fetchOrders();
+    fetchPendingPayments(); // ✅ add this
   }, []);
 
+
+  const fetchPendingPayments = async () => {
+    try {
+      const response = await fetch("https://zauvijek-industry-mart.onrender.com/admin/pending-payments", {
+        headers: { Authorization: token, "Content-Type": "application/json" },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("85",data)
+        setPendingPayments(data);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load pending payments",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
   const fetchDashboardData = async () => {
     try {
       const response = await fetch("https://zauvijek-industry-mart.onrender.com/admin/dashboard", {
@@ -182,6 +205,37 @@ const AdminDashboard = () => {
       });
     }
   };
+
+  const handleApprovePayment = async (paymentId) => {
+    try {
+      const response = await fetch(`https://zauvijek-industry-mart.onrender.com/admin/approve-payment/${paymentId}`, {
+        method: "POST",
+        headers: { Authorization: token, "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        toast({
+          title: "Payment Approved",
+          description: "Seller has been notified.",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        fetchPendingPayments(); // refresh list
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+  
 
   const handleProductStatusUpdate = async (productId, status) => {
     try {
@@ -425,6 +479,8 @@ const AdminDashboard = () => {
             <Tab _selected={{ color: "white", bg: "orange.500" }}>
               Orders
             </Tab>
+            <Tab _selected={{ color: "white", bg: "pink.500" }}>Pending Payments</Tab>
+
           </TabList>
 
           <TabPanels>
@@ -670,7 +726,53 @@ const AdminDashboard = () => {
                 </Table>
               </TableContainer>
             </TabPanel>
+            <TabPanel>
+  <Heading size="md" mb={4}>Pending Payments</Heading>
+  {pendingPayments.length === 0 ? (
+    <Text>No pending payments.</Text>
+  ) : (
+    <TableContainer>
+      <Table variant="striped" colorScheme="pink" size="md">
+        <Thead bg="pink.100">
+          <Tr>
+            <Th>Buyer</Th>
+            <Th>Product</Th>
+            <Th>Amount (₹)</Th>
+            <Th>Percent Amount (₹)</Th>
+            <Th>Action</Th>
+          </Tr>
+        </Thead>
+        <Tbody>
+          {pendingPayments.map((pay) => (
+            <Tr key={pay._id}>
+              <Td>{pay.buyer?.name} ({pay.buyer?.email})</Td>
+              <Td>{pay.product?.name}</Td>
+              <Td>₹{pay.product?.price.toLocaleString()}</Td>
+              <Td>₹{pay.percentAmount.toFixed(2)}</Td>
+              <Td>
+                {!pay.adminApproved ? (
+                  <Button
+                    size="sm"
+                    colorScheme="green"
+                    onClick={() => handleApprovePayment(pay._id)}
+                  >
+                    Approve & Notify Seller
+                  </Button>
+                ) : (
+                  <Badge colorScheme="green">Approved</Badge>
+                )}
+              </Td>
+            </Tr>
+          ))}
+        </Tbody>
+      </Table>
+    </TableContainer>
+  )}
+</TabPanel>
+
           </TabPanels>
+         
+
         </Tabs>
       </Box>
       <Footer />

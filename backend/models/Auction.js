@@ -17,6 +17,9 @@
 
 
 
+// 
+
+
 const mongoose = require("mongoose");
 
 const AuctionSchema = new mongoose.Schema({
@@ -38,9 +41,12 @@ const AuctionSchema = new mongoose.Schema({
   email: { type: String, required: true },
   pickupLocation: { type: String, required: true },
   deliveryOption: { type: String, enum: ["pickup", "delivery"], default: "pickup" },
-  materialCertificate: { type: String, default: null }, // uploaded file path
-  photos: [{ type: String }], // multiple photos
+  materialCertificate: { type: String, default: null },
+  photos: [{ type: String }],
   terms: { type: String, default: "" },
+
+  // ✅ Link auction to user
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
   createdAt: { type: Date, default: Date.now },
 });
@@ -48,4 +54,5 @@ const AuctionSchema = new mongoose.Schema({
 AuctionSchema.index({ status: 1, endDate: 1 });
 
 module.exports = mongoose.model("Auction", AuctionSchema);
+
 

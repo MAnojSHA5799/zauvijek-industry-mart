@@ -19,6 +19,8 @@ const PageBanner = ({ title, bgImage, breadcrumb }) => {
       color="white"
       textAlign="center"
       position="relative"
+      w={"100%"}
+      mt={"3.9%"}
       minH={{ base: "300px", md: "400px" }} // 🔹 Increased height
       display="flex"
       alignItems="center"

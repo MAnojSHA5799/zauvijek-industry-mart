@@ -73,7 +73,7 @@ const ContactPage = () => {
       <Navbar />
       <PageBanner
         title="Contact Us"
-        bgImage="/images/contact-banner.jpg"
+        bgImage="/contact-us.png"
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Contact Us" },

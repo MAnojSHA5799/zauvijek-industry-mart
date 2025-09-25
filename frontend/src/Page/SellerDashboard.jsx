@@ -323,6 +323,7 @@ const SellerDashboard = () => {
       formData.append("description", productForm.description);
       formData.append("price", productForm.price);
       formData.append("stock", productForm.stock);
+      formData.append("unit", productForm.unit); // ✅ Added Unit
       formData.append("category", productForm.category);
       formData.append("brand", productForm.brand);
       formData.append("minOrderQuantity", productForm.minOrderQuantity);
@@ -338,14 +339,20 @@ const SellerDashboard = () => {
         formData.append("image", productForm.image);
       }
   
-      // 🔹 Features (array → JSON string)
+      // 🔹 Features (string → JSON string if comma separated)
       if (productForm.features?.length > 0) {
-        formData.append("features", JSON.stringify(productForm.features));
+        const featuresArray = Array.isArray(productForm.features)
+          ? productForm.features
+          : productForm.features.split(",").map((f) => f.trim());
+        formData.append("features", JSON.stringify(featuresArray));
       }
   
       // 🔹 Specifications (object → JSON string)
       if (productForm.specifications) {
-        formData.append("specifications", JSON.stringify(productForm.specifications));
+        formData.append(
+          "specifications",
+          JSON.stringify(productForm.specifications)
+        );
       }
   
       const response = await fetch("https://zauvijek-industry-mart.onrender.com/seller/products", {
@@ -376,6 +383,7 @@ const SellerDashboard = () => {
           description: "",
           price: "",
           stock: "",
+          unit: "", // ✅ reset Unit
           category: "",
           brand: "",
           features: [],
@@ -404,6 +412,7 @@ const SellerDashboard = () => {
       });
     }
   };
+  
   
   
 
@@ -748,6 +757,65 @@ const handleDelete = async (id) => {
                     </NumberInput>
                   </FormControl>
                   <FormControl>
+                  <FormControl isRequired>
+  <FormLabel>Unit</FormLabel>
+  <Select
+    value={productForm.unit}
+    onChange={(e) =>
+      setProductForm({ ...productForm, unit: e.target.value })
+    }
+  >
+    <option value="">Select Unit</option>
+
+    {/* Weight Units */}
+    <option value="kg">Kilogram (Kg)</option>
+    <option value="g">Gram (g)</option>
+    <option value="mg">Milligram (mg)</option>
+    <option value="lb">Pound (lb)</option>
+    <option value="oz">Ounce (oz)</option>
+    <option value="ton">Ton</option>
+    <option value="mt">Metric Ton (MT)</option>
+    <option value="quintal">Quintal</option>
+
+    {/* Volume Units */}
+    <option value="liter">Liter (L)</option>
+    <option value="ml">Milliliter (ml)</option>
+    <option value="gallon">Gallon</option>
+    <option value="barrel">Barrel</option>
+    <option value="cubic_meter">Cubic Meter (m³)</option>
+    <option value="cubic_foot">Cubic Foot (ft³)</option>
+
+    {/* Piece/Count Units */}
+    <option value="piece">Piece</option>
+    <option value="unit">Unit</option>
+    <option value="set">Set</option>
+    <option value="pair">Pair</option>
+    <option value="dozen">Dozen</option>
+    <option value="pack">Pack</option>
+    <option value="box">Box</option>
+    <option value="bag">Bag</option>
+    <option value="carton">Carton</option>
+    <option value="bundle">Bundle</option>
+    <option value="roll">Roll</option>
+    <option value="sheet">Sheet</option>
+    <option value="container">Container</option>
+    <option value="lot">Lot</option>
+
+    {/* Industrial / Special Units */}
+    <option value="coil">Coil</option>
+    <option value="drum">Drum</option>
+    <option value="pallet">Pallet</option>
+    <option value="bar">Bar</option>
+    <option value="rod">Rod</option>
+    <option value="ingot">Ingot</option>
+    <option value="slab">Slab</option>
+    <option value="block">Block</option>
+    <option value="sheet_ton">Sheet Ton</option>
+    <option value="scrap_bundle">Scrap Bundle</option>
+    <option value="transformer_unit">Transformer Unit</option>
+  </Select>
+</FormControl>
+
                     <FormLabel>Brand</FormLabel>
                     <Input
                       value={productForm.brand}

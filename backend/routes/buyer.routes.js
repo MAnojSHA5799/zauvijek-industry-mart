@@ -2,7 +2,7 @@ const express = require("express");
 const { authorization, buyerOnly } = require("../middleware/auth.middleware");
 const ProductModel = require("../models/product.model");
 const OrderModel = require("../models/order.model");
-
+const NotificationModel = require("../models/notification.model"); // ✅ यहाँ import
 const router = express.Router();
 
 // Get all approved products (for browsing)
@@ -49,23 +49,76 @@ router.get("/products", async (req, res) => {
     }
 });
 
-// Get product by ID
+// Get product by ID with full seller details
+// router.get("/products/:id", async (req, res) => {
+//     try {
+//         const productId = req.params.id;
+        
+//         const product = await ProductModel.findOne({ _id: productId, status: 'approved' })
+//             .populate('sellerId'); // Fetch entire seller document
+        
+//         if (!product) {
+//             return res.status(404).send({ message: "Product not found" });
+//         }
+        
+//         res.send({ product });
+//     } catch (error) {
+//         res.status(500).send({ message: "Error fetching product", error: error.message });
+//     }
+// });
+
+/// Get product by ID with full seller details and payment status for a buyer
+// Get product by ID + buyer payment info
 router.get("/products/:id", async (req, res) => {
     try {
-        const productId = req.params.id;
-        
-        const product = await ProductModel.findOne({ _id: productId, status: 'approved' })
-            .populate('sellerId', 'name email phone');
-        
-        if (!product) {
-            return res.status(404).send({ message: "Product not found" });
+      const productId = req.params.id;
+      const buyerId = req.query.buyerId; // ✅ frontend se pass hoga
+  
+      console.log("Product ID:", productId, "Buyer ID:", buyerId);
+  
+      const product = await ProductModel.findOne({ _id: productId, status: "approved" })
+        .populate("sellerId"); // ✅ seller details laao
+  
+      if (!product) {
+        return res.status(404).send({ message: "Product not found" });
+      }
+  
+      // ✅ default values agar notification nahi mile
+      let pricePaidPercent = 0;
+      let isPaid = false;
+  
+      if (buyerId) {
+        // ✅ buyer + product ke liye notification check
+        const notification = await NotificationModel.findOne({
+          "buyerDetails._id": buyerId,
+          "productDetails._id": productId,
+          type: "payment",
+        });
+  
+        console.log("Notification fetched:", notification);
+  
+        if (notification) {
+          pricePaidPercent = notification.productDetails?.pricePaidPercent || 0;
+          isPaid = pricePaidPercent >= 2;
         }
-        
-        res.send({ product });
+      }
+  
+      res.send({
+        product: {
+          ...product.toObject(),
+          pricePaidPercent,
+          isPaid,
+        },
+      });
     } catch (error) {
-        res.status(500).send({ message: "Error fetching product", error: error.message });
+      res.status(500).send({ message: "Error fetching product", error: error.message });
     }
-});
+  });
+  
+  
+  
+  
+
 
 // Get product categories
 router.get("/categories", async (req, res) => {

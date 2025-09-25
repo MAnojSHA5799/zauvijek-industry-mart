@@ -1,0 +1,391 @@
+const express = require("express");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const Razorpay = require("razorpay");
+const { UserModel } = require("../models/User.model");
+
+const router = express.Router();
+
+// Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: "rzp_test_jXtU63C342FF9B",
+  key_secret: "nrz1lzn50ELsRHwFwYthIgBT",
+});
+
+// ---------------- Get all users (admin use) ----------------
+router.get("/", async (req, res) => {
+  try {
+    const users = await UserModel.find();
+    res.send(users);
+  } catch (error) {
+    res.status(500).send({ message: "Cannot get Users", error: error.message });
+  }
+});
+
+// ---------------- Register User (pending until payment) ----------------
+router.post("/register", async (req, res) => {
+  const {
+    name, username, email, password, phone, gender, role,
+    preferredLocation, interests, newsletter,
+    companyName, gstNumber, warehouseLocation, productCategories,
+    aadharNumber, panNumber, plan
+  } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 5);
+
+    const user = new UserModel({
+      name,
+      username,
+      email,
+      password: hashedPassword,
+      phone,
+      gender,
+      role,
+      status: role === "buyer" ? "approved" : "pending",
+      preferredLocation,
+      interests,
+      newsletter,
+      companyName,
+      gstNumber,
+      warehouseLocation,
+      productCategories,
+      aadharNumber,
+      panNumber,
+      plan,
+      planActive: false, // will activate after payment
+    });
+
+    await user.save();
+    res.send({ message: "User registered. Complete payment to activate account.", userId: user._id });
+  } catch (error) {
+    res.status(500).send({ message: "Registration failed", error: error.message });
+  }
+});
+
+// ---------------- Create Razorpay order ----------------
+router.post("/create-order", async (req, res) => {
+  const { amount } = req.body; // Amount in INR (paise in frontend)
+
+  if (!amount) return res.status(400).json({ message: "Amount is required" });
+
+  try {
+    const options = {
+      amount: amount, // already in paise
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+    };
+
+    const order = await razorpay.orders.create(options);
+    res.status(200).json(order);
+  } catch (error) {
+    console.error("Razorpay order creation error:", error);
+    res.status(500).json({ message: "Order creation failed", error: error.message });
+  }
+});
+
+// ---------------- Verify payment & activate plan ----------------
+router.post("/verify-payment", async (req, res) => {
+  const { userId, plan } = req.body;
+
+  try {
+    const startDate = new Date();
+    const endDate = new Date();
+
+    switch (plan) {
+      case "monthly":
+        endDate.setMonth(endDate.getMonth() + 1);
+        break;
+      case "threeMonth":
+        endDate.setMonth(endDate.getMonth() + 3);
+        break;
+      case "sixMonth":
+        endDate.setMonth(endDate.getMonth() + 6);
+        break;
+      case "yearly":
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        break;
+      default:
+        return res.status(400).send({ message: "Invalid plan" });
+    }
+
+    await UserModel.findByIdAndUpdate(userId, {
+      plan,
+      planStartDate: startDate,
+      planEndDate: endDate,
+      planActive: true,
+      status: "approved",
+    });
+
+    res.send({ message: "Payment successful and plan activated!" });
+  } catch (error) {
+    res.status(500).send({ message: "Plan activation failed", error: error.message });
+  }
+});
+
+// ---------------- Login with plan expiry check ----------------
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await UserModel.findOne({ email });
+    if (!user) return res.status(404).send({ message: "User not found" });
+
+    const validPass = await bcrypt.compare(password, user.password);
+    if (!validPass) return res.status(401).send({ message: "Wrong Credentials" });
+
+    // Check plan expiry
+    if (user.planActive && user.planEndDate && new Date() > new Date(user.planEndDate)) {
+      return res.status(403).send({ message: "Your plan has expired. Please renew to login." });
+    }
+
+    const token = jwt.sign({ UserId: user._id, role: user.role }, "anysecretkey");
+    res.send({
+      message: "Login successful",
+      token,
+      userDetails: user,
+    });
+
+  } catch (error) {
+    res.status(500).send({ message: "Login failed", error: error.message });
+  }
+});
+
+module.exports = router;
+  
+
+//////////////////////////////////////////////////////////////////////////////////////////////////// old  
+
+// const express = require("express");
+// const bcrypt = require("bcrypt");
+// const jwt = require("jsonwebtoken");
+// const { UserModel } = require("../models/User.model");
+
+// const router = express.Router();
+
+// router.get("/",async(req,res)=>{
+//   try {
+//     const Users = await UserModel.find();
+//     res.send(Users);
+//   } catch (error) {
+//     res.send({message:"Cannot get Users",error:error.message})
+//   }
+// })
+
+// router.post("/register", async (req, res) => {
+//   const { name, username, email, password, phone, gender, role } = req.body;
+  
+//   try {
+//     // Validate role
+//     const validRoles = ['buyer', 'seller', 'admin'];
+//     const userRole = role || 'buyer';
+    
+//     if (!validRoles.includes(userRole)) {
+//       return res.status(400).send({ message: "Invalid role. Must be buyer, seller, or admin." });
+//     }
+
+//     bcrypt.hash(password, 5, async (err, hash) => {
+//       if (err) {
+//         res.status(500).send({ error: err.message });
+//       } else {
+//         const User = new UserModel({
+//           name,
+//           username,
+//           email,
+//           password: hash,
+//           phone,
+//           gender,
+//           role: userRole,
+//           status: userRole === 'buyer' ? 'approved' : 'pending' // Auto-approve buyers, sellers need approval
+//         });
+        
+//         await User.save();
+//         res.send({ 
+//           message: `User has been registered successfully as ${userRole}. ${userRole === 'seller' ? 'Your account is pending admin approval.' : ''}`,
+//           role: userRole,
+//           status: userRole === 'buyer' ? 'approved' : 'pending'
+//         });
+//       }
+//     });
+//   } catch (error) {
+//     res.status(500).send({ message: "Something went wrong", error: error.message });
+//   }
+// });
+
+// router.post("/login", async (req, res) => {
+//     const {email, password} = req.body;
+//     try {
+//       const User = await UserModel.findOne({email});
+//       if(User){
+//         bcrypt.compare(password, User.password, (err, result) => {
+//           if(err){
+//             console.log({error: err.message});
+//             res.status(500).send({message: "Login error", error: err.message});
+//           } else if(result){
+//             const token = jwt.sign({UserId: User._id, role: User.role}, "anysecretkey");
+//             res.send({
+//               message: "User has been login successfully",
+//               token: token,
+//               userDetails: {
+//                 id: User._id,
+//                 name: User.name,
+//                 username: User.username,
+//                 email: User.email,
+//                 role: User.role,
+//                 status: User.status,
+//                 phone: User.phone,
+//                 gender: User.gender
+//               }
+//             });
+//           } else {
+//             res.status(401).send({message: "Wrong Credentials"});
+//           }
+//         });
+//       } else {
+//         res.status(404).send({message: "User not found"});
+//       }
+//     } catch (error) {
+//       res.status(500).send({ message: "Something went wrong", error: error.message });  
+//     }
+// });
+
+// module.exports=router
+
+
+const express = require("express");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { UserModel } = require("../models/User.model");
+
+const router = express.Router();
+
+// Get all users
+router.get("/", async (req, res) => {
+  try {
+    const Users = await UserModel.find();
+    res.send(Users);
+  } catch (error) {
+    res.send({ message: "Cannot get Users", error: error.message });
+  }
+});
+
+// Register user
+router.post("/register", async (req, res) => {
+  const {
+    name,
+    username,
+    email,
+    password,
+    phone,
+    gender,
+    role,
+    preferredLocation,
+    interests,
+    newsletter,
+    companyName,
+    gstNumber,
+    warehouseLocation,
+    productCategories,
+  } = req.body;
+
+  try {
+    // Validate role
+    const validRoles = ["buyer", "seller", "admin"];
+    const userRole = role || "buyer";
+
+    if (!validRoles.includes(userRole)) {
+      return res
+        .status(400)
+        .send({ message: "Invalid role. Must be buyer, seller, or admin." });
+    }
+
+    bcrypt.hash(password, 5, async (err, hash) => {
+      if (err) {
+        res.status(500).send({ error: err.message });
+      } else {
+        const User = new UserModel({
+          name,
+          username,
+          email,
+          password: hash,
+          phone,
+          gender,
+          role: userRole,
+          status: userRole === "buyer" ? "approved" : "pending",
+          // Buyer fields
+          preferredLocation: userRole === "buyer" ? preferredLocation : undefined,
+          interests: userRole === "buyer" ? interests : undefined,
+          newsletter: userRole === "buyer" ? newsletter : false,
+          // Seller fields
+          companyName: userRole === "seller" ? companyName : undefined,
+          gstNumber: userRole === "seller" ? gstNumber : undefined,
+          warehouseLocation: userRole === "seller" ? warehouseLocation : undefined,
+          productCategories: userRole === "seller" ? productCategories : undefined,
+        });
+
+        await User.save();
+        res.send({
+          message: `User has been registered successfully as ${userRole}. ${
+            userRole === "seller" ? "Your account is pending admin approval." : ""
+          }`,
+          role: userRole,
+          status: userRole === "buyer" ? "approved" : "pending",
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong", error: error.message });
+  }
+});
+
+// Login user
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const User = await UserModel.findOne({ email });
+    if (User) {
+      bcrypt.compare(password, User.password, (err, result) => {
+        if (err) {
+          console.log({ error: err.message });
+          res.status(500).send({ message: "Login error", error: err.message });
+        } else if (result) {
+          const token = jwt.sign(
+            { UserId: User._id, role: User.role },
+            "anysecretkey"
+          );
+          res.send({
+            message: "User has been login successfully",
+            token: token,
+            userDetails: {
+              id: User._id,
+              name: User.name,
+              username: User.username,
+              email: User.email,
+              role: User.role,
+              status: User.status,
+              phone: User.phone,
+              gender: User.gender,
+              // Buyer info
+              preferredLocation: User.preferredLocation,
+              interests: User.interests,
+              newsletter: User.newsletter,
+              // Seller info
+              companyName: User.companyName,
+              gstNumber: User.gstNumber,
+              warehouseLocation: User.warehouseLocation,
+              productCategories: User.productCategories,
+            },
+          });
+        } else {
+          res.status(401).send({ message: "Wrong Credentials" });
+        }
+      });
+    } else {
+      res.status(404).send({ message: "User not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ message: "Something went wrong", error: error.message });
+  }
+});
+
+module.exports = router;

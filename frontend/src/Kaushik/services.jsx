@@ -72,7 +72,7 @@ export default function ServicePage() {
       {/* Page Banner */}
       <PageBanner
         title="Our Services"
-        bgImage="/Image/services-banner.jpg" // ⚡️ Make sure this exists in /public/Image
+        bgImage="/our-work.jpg" // ⚡️ Make sure this exists in /public/Image
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Services" },

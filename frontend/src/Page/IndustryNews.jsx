@@ -17,7 +17,7 @@ const MetalPrices = () => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [city, setCity] = useState("All"); // ✅ default city
-  const itemsPerPage = 4;
+  const itemsPerPage = 5;
 
   const fetchPrices = async () => {
     setLoading(true);
@@ -48,18 +48,10 @@ const MetalPrices = () => {
   const cityOptions = ["All", ...new Set(prices.map((item) => item.city))];
 
   return (
-    <Box
-      bg="white"
-      borderRadius="16px"
-      p={6}
-      boxShadow="md"
-      maxW="1000px"
-      mx="auto"
-      mt={6}
-    >
+    <Box p={6} overflow="hidden" maxW="900px" mx="auto">
       {/* ✅ Heading + Dropdown */}
       <Flex justify="space-between" align="center" mb={4}>
-        <Heading size="lg" color="#606FC4">
+      <Heading size="md" color="#606FC4">
           Live Metal Price Updates
         </Heading>
         <Select

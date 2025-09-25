@@ -48,7 +48,7 @@ const Career = () => {
       {/* Hero Banner */}
       <PageBanner
         title="Careers"
-        bgImage="/images/career-banner.jpg"
+        bgImage="/career.jpg"
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "Careers" },

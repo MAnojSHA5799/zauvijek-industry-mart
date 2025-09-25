@@ -27,7 +27,7 @@ const AboutUs = () => {
       {/* Hero Section */}
       <PageBanner
         title="About Us"
-        bgImage="/public/Image/machine.jpg"
+        bgImage="/about-us.jpg"
         breadcrumb={[
           { label: "Home", href: "/" },
           { label: "About Us" },

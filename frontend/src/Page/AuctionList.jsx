@@ -1,6 +1,7 @@
+// src/components/AuctionList.jsx
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../Kaushik/Navbar";
 import Footer from "../Kaushik/Footer";
 import {
@@ -27,12 +28,29 @@ const AuctionList = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
   const toast = useToast();
+  const { id } = useParams();
 
-  // fetch auctions
+  // ✅ Logged-in user details
+  const user = JSON.parse(localStorage.getItem("userDetails"));
+  console.log("Logged-in User:", user);
+
+  // ✅ Fetch auctions
   const fetchAuctions = async () => {
     try {
+      if (!user || !user.id) {
+        console.warn("No logged-in user found");
+        return;
+      }
+
       const res = await axios.get("https://zauvijek-industry-mart.onrender.com/api/auctions");
-      setAuctions(res.data);
+      console.log("All auctions:", res.data);
+
+      // ✅ Filter auctions by logged-in user
+      const userAuctions = res.data.filter(
+        (auction) => auction.userId === user.id
+      );
+
+      setAuctions(userAuctions);
     } catch (err) {
       console.error(err);
       toast({
@@ -51,7 +69,7 @@ const AuctionList = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // delete auction
+  // ✅ Delete auction
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this auction?")) {
       try {
@@ -75,7 +93,7 @@ const AuctionList = () => {
     }
   };
 
-  // edit auction
+  // ✅ Edit auction
   const handleEdit = (id) => {
     navigate(`/auction/edit/${id}`);
   };
@@ -90,15 +108,15 @@ const AuctionList = () => {
           mb="30px"
           fontSize={{ base: "2xl", md: "3xl" }}
         >
-          All Auctions
+          My Auctions
         </Heading>
 
         {auctions.length === 0 ? (
           <Text textAlign="center" color="gray.500">
-            No auctions found.
+            No auctions found for your account.
           </Text>
         ) : isMobile ? (
-          // ✅ Mobile / Card View
+          // ✅ Mobile Card View
           <Stack spacing={5}>
             {auctions.map((auction) => (
               <Card key={auction._id} shadow="md" borderRadius="xl">
@@ -165,7 +183,7 @@ const AuctionList = () => {
             ))}
           </Stack>
         ) : (
-          // ✅ Desktop / Table View
+          // ✅ Desktop Table View
           <Box overflowX="auto" borderRadius="md" boxShadow="sm">
             <Table variant="striped" colorScheme="gray">
               <Thead bg="#606FC4">

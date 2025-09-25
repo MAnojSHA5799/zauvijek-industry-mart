@@ -16,156 +16,317 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
+  Checkbox,
 } from "@chakra-ui/react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "../Kaushik/Navbar";
 import Footer from "../Kaushik/Footer";
-
+import ReactImageMagnify from 'react-image-magnify';
 const ProductCardDetails = () => {
-  const { id } = useParams(); // get product id from URL
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [buyerPaid, setBuyerPaid] = useState(false);
+  const [agreePayment, setAgreePayment] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
 
+  // Load Razorpay SDK dynamically
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => setRazorpayLoaded(true);
+    script.onerror = () => console.error("Razorpay SDK failed to load");
+    document.body.appendChild(script);
+    return () => document.body.removeChild(script);
+  }, []);
+
   useEffect(() => {
     fetchProduct();
+    checkContactStatus();
   }, [id]);
 
-  const fetchProduct = async () => {
+
+// 🔹 localStorage se userDetails nikalo
+const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+console.log(userDetails)
+const fetchProduct = async () => {
+  try {
+    const response = await fetch(
+      `https://zauvijek-industry-mart.onrender.com/buyer/products/${id}?buyerId=${userDetails?._id}`
+    );
+    const data = await response.json();
+    console.log("73",data.product)
+    setProduct(data.product);
+  } catch (error) {
+    toast({
+      title: "Error",
+      description: "Failed to load product",
+      status: "error",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
+  
+  const checkContactStatus = async () => {
     try {
-      const response = await fetch(
-        `https://zauvijek-industry-mart.onrender.com/buyer/products/${id}`
+      const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+      const res = await fetch(
+        `https://zauvijek-industry-mart.onrender.com/buyer/contact-status/${id}/${userDetails._id}`
       );
-      const data = await response.json();
-      console.log("Fetched Product:", data.product);
-      setProduct(data.product); // assuming API returns { product: {...} }
+      const data = await res.json();
+      setBuyerPaid(data.bothPaid || false);
     } catch (error) {
-      console.error("Error fetching product:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load product details",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    } finally {
-      setLoading(false);
+      console.error(error);
     }
   };
 
-  if (loading) {
-    return (
-      <>
-        <Navbar />
-        <Flex justify="center" align="center" minH="70vh">
-          <Spinner size="xl" color="blue.500" />
-        </Flex>
-        <Footer />
-      </>
-    );
-  }
+  const handleBuyerPayment = async () => {
+    if (!agreePayment) {
+      toast({ title: "Confirm Payment", description: "Please check the box to confirm payment.", status: "warning" });
+      return;
+    }
 
-  if (!product) {
-    return (
-      <>
-        <Navbar />
-        <Flex justify="center" align="center" minH="70vh">
-          <Text fontSize="xl">Product not found.</Text>
-        </Flex>
-        <Footer />
-      </>
-    );
-  }
+    if (!razorpayLoaded || !window.Razorpay) {
+      toast({ title: "Error", description: "Razorpay SDK is not loaded yet.", status: "error" });
+      return;
+    }
+
+    try {
+      setPaymentProcessing(true);
+      const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+      const amount = Math.round(product.price * 0.02 * 100); // 2% in paise
+
+      // Create order in backend
+      const orderRes = await fetch("https://zauvijek-industry-mart.onrender.com/buyer/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product._id, buyerId: userDetails.id, amount }),
+      });
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) throw new Error(orderData.message);
+
+      // Open Razorpay checkout
+      const options = {
+        key: 'rzp_test_jXtU63C342FF9B',
+        amount: orderData.amount,
+        currency: "INR",
+        name: "Zauvijek Mart",
+        description: "Pay 2% to view seller contact",
+        order_id: orderData.id,
+        handler: async function (response) {
+          // Verify payment in backend
+          const verifyRes = await fetch("https://zauvijek-industry-mart.onrender.com/buyer/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              productId: product._id,
+              buyerId: userDetails._id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyRes.ok) {
+            toast({ title: "Payment Successful", description: "You can now view seller contact.", status: "success" });
+            setBuyerPaid(true);
+          } else throw new Error(verifyData.message);
+        },
+        prefill: { name: userDetails.name, email: userDetails.email },
+        theme: { color: "#606FC4" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      toast({ title: "Payment Failed", description: error.message, status: "error" });
+    } finally {
+      setPaymentProcessing(false);
+    }
+  };
+
+  const handleViewSeller = () => {
+    if (buyerPaid) onOpen();
+    else toast({ title: "Payment Required", description: "You need to pay 2% to view seller contact.", status: "info" });
+  };
+
+  if (loading) return <><Navbar /><Flex justify="center" align="center" minH="70vh"><Spinner size="xl" /></Flex><Footer /></>;
+  if (!product) return <><Navbar /><Flex justify="center" align="center" minH="70vh"><Text fontSize="xl">Product not found.</Text></Flex><Footer /></>;
 
   return (
     <>
       <Navbar />
-
       <Box maxW="1200px" mx="auto" px={4} py={10} mt={10}>
-        <Flex
-          direction={{ base: "column", md: "row" }}
-          gap={8}
-          alignItems="flex-start"
-        >
-          {/* Product Images */}
-          <Box flex="1">
-            {product.images?.map((img, i) => (
-              <Image
-                key={i}
-                src={`https://zauvijek-industry-mart.onrender.com${img}`}
-                alt={product.name}
-                borderRadius="md"
-                mb={4}
-              />
-            ))}
-          </Box>
+        <Flex direction={{ base: "column", md: "row" }} gap={8} alignItems="flex-start">
+        <Box flex="1">
+  {product.images?.map((img, i) => (
+    <Box key={i} mb={4} maxW="600px"
+    border="1px solid #ccc"        // ✅ Light gray border
+    borderRadius="md" 
+    boxShadow="sm"  
+    >
+      <ReactImageMagnify
+        {...{
+          smallImage: {
+            alt: product.name,
+            isFluidWidth: true,
+            src: `https://zauvijek-industry-mart.onrender.com${img}`, // ✅ FIXED (missing earlier)
+          },
+          largeImage: {
+            src: `https://zauvijek-industry-mart.onrender.com${img}`,
+            width: 1000,
+            height: 1000,
+          },
+          enlargedImageContainerDimensions: {
+            width: "100%",
+            height: "100%",
+          },
+        }}
+      />
+    </Box>
+  ))}
 
-          {/* Product Details */}
-          <Box flex="1">
-            <Heading color="#606FC4" mb={4}>
-              {product.name}
-            </Heading>
-            <Text fontSize="xl" fontWeight="bold" mb={2}>
-              ₹{product.price}
-            </Text>
-            <Text fontSize="md" mb={2}>
-              Category: <strong>{product.category}</strong>
-            </Text>
-            <Text fontSize="md" mb={2}>
-              Condition: <strong>{product.condition}</strong>
-            </Text>
-            <Text fontSize="md" mb={2}>
-              Stock: <strong>{product.stock}</strong>
-            </Text>
-            <Text fontSize="md" mb={4}>
-              {product.description}
-            </Text>
+  {/* Warehouse Location with Map */}
+  {product?.sellerId?.warehouseLocation && (
+    <Box mt={10}>
+      <Text mb={2}>
+        <strong>{product?.sellerId?.warehouseLocation}</strong>
+      </Text>
 
-            {/* Seller Details Button */}
-            <Button
-              colorScheme="teal"
-              onClick={onOpen}
-              mr={4}
-              _hover={{ transform: "scale(1.05)" }}
-            >
-              View Seller Details
+      <Box border="1px solid #ccc" borderRadius="md" overflow="hidden">
+        <iframe
+          title="Warehouse Location Map"
+          width="100%"
+          height="250"
+          style={{ border: 0 }}
+          loading="lazy"
+          allowFullScreen
+          src={`https://www.google.com/maps?q=${encodeURIComponent(
+            product?.sellerId?.warehouseLocation
+          )}&output=embed`}
+        ></iframe>
+      </Box>
+    </Box>
+  )}
+</Box>
+
+
+
+          <Box flex="1">
+          <Heading color="#606FC4" mb={4}>{product.name}</Heading>
+<Text fontSize="xl" fontWeight="bold" mb={2}>₹{product.price}</Text>
+<Text fontSize="md" mb={2}>Category: <strong>{product.category}</strong></Text>
+<Text fontSize="md" mb={2}>Condition: <strong>{product.condition}</strong></Text>
+<Text fontSize="md" mb={2}>Stock: <strong>{product.stock}</strong></Text>
+{/* <Text fontSize="md" mb={2}>Min Order Quantity: <strong>{product.minOrderQuantity}</strong></Text>
+<Text fontSize="md" mb={2}>Max Order Quantity: <strong>{product.maxOrderQuantity}</strong></Text> */}
+<Text fontSize="md" mb={2}>Unit: <strong>{product.unit}</strong></Text>
+<Text fontSize="md" mb={4}>{product.description}</Text>
+
+{/* Features Section */}
+{product.features && product.features.length > 0 && (
+  <Box mb={6}>
+    <Heading size="md" color="#606FC4" mb={2}>Features</Heading>
+    <ul style={{ marginLeft: "20px" }}>
+      {product.features.map((feature, i) => (
+        <li key={i}>
+          {feature
+            .replace(/\\n/g, " ")      // remove all \n
+            .replace(/\\r/g, " ")      // remove carriage returns if any
+            .replace(/[[\]]/g, "")     // remove brackets
+            .replace(/"/g, "")          // remove quotes
+            .trim()                     // remove leading/trailing spaces
+          }
+        </li>
+      ))}
+    </ul>
+  </Box>
+)}
+
+
+
+{/* Specifications Section */}
+{product.specifications && (
+  <Box mb={6}>
+    <Heading size="md" color="#606FC4" mb={2}>Specifications</Heading>
+    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+      <tbody>
+        {Object.entries(product.specifications).map(([key, value], i) => (
+          <tr key={i} style={{ borderBottom: "1px solid #ccc" }}>
+            <td style={{ padding: "8px", fontWeight: "bold", textTransform: "capitalize" }}>
+              {key}
+            </td>
+            <td style={{ padding: "8px" }}>{value}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </Box>
+)}
+
+{/* Location */}
+<Text fontSize="md"  mb={2}>
+  Location: <strong >{product?.sellerId?.warehouseLocation}</strong>
+</Text>
+
+
+            <Checkbox mb={4} isChecked={agreePayment} onChange={(e) => setAgreePayment(e.target.checked)}>
+              I agree to pay 2% of the product price to view seller contact
+            </Checkbox>
+
+            <Button colorScheme="teal" onClick={buyerPaid ? handleViewSeller : handleBuyerPayment} mr={4} isLoading={paymentProcessing}>
+              {buyerPaid ? "View Seller Details" : "Pay & View Seller Details"}
             </Button>
 
-            {/* Back button */}
             <Link to="/">
-              <Button
-                colorScheme="blue"
-                _hover={{ bg: "#3182CE", transform: "scale(1.05)" }}
-              >
-                Back to Home
-              </Button>
+              <Button colorScheme="blue" _hover={{ bg: "#3182CE" }}>Back to Home</Button>
             </Link>
           </Box>
         </Flex>
       </Box>
 
-      {/* Seller Details Modal */}
+      {/* Modal for seller contact */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Seller Information</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text fontSize="md" mb={2}>
-              <strong>Name:</strong> {product?.sellerId?.name}
-            </Text>
-            <Text fontSize="md" mb={2}>
-              <strong>Email:</strong> {product?.sellerId?.email}
-            </Text>
-            <Text fontSize="md" mb={2}>
-              <strong>Phone:</strong> {product?.sellerId?.phone}
-            </Text>
+            <Text fontSize="md" mb={2}><strong>Contact Person:</strong> {product?.sellerId?.name}</Text>
+            <Text fontSize="md" mb={2}><strong>GST Number:</strong> {product?.sellerId?.gstNumber}</Text>
+            <Text fontSize="md" mb={2}><strong>Warehouse Location:</strong> {product?.sellerId?.warehouseLocation}</Text>
+
+            {product?.pricePaidPercent === 2 ? (
+  <>
+    <Text fontSize="md" mb={2}>
+      <strong>Email:</strong> {product?.sellerId?.email}
+    </Text>
+    <Text fontSize="md" mb={2}>
+      <strong>Phone:</strong> {product?.sellerId?.phone}
+    </Text>
+    <Text fontSize="md" mb={2}>
+      <strong>Company Name:</strong> {product?.sellerId?.companyName || "N/A"}
+    </Text>
+  </>
+) : (
+  <Text fontSize="md" color="red.500">
+    ⚠️ Please complete payment to unlock Email, Phone, and Company Name.
+  </Text>
+)}
+
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" onClick={onClose}>
-              Close
-            </Button>
+            <Button colorScheme="blue" onClick={onClose}>Close</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
