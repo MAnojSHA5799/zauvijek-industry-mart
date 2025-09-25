@@ -122,7 +122,7 @@ console.log("66",res.data)
   // 🔹 Fetch items/prices
   const fetchItems = async () => {
     try {
-      const res = await axios.get("https://zauvijek-industry-mart.vercel.app/recycleinme_prices.json");
+      const res = await axios.get("https://zauvijek-industry-mart-23cvrv2tx.vercel.app//recycleinme_prices.json");
       const data = res.data.map((item) => {
         let changeType = "neutral";
         if (item.change.includes("▼") || item.change.includes("-")) changeType = "down";
